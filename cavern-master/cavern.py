@@ -18,6 +18,8 @@ if pgzero_version < [1,2]:
     print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
     sys.exit()
 
+
+
 # Set up constants
 WIDTH = 800
 HEIGHT = 480
