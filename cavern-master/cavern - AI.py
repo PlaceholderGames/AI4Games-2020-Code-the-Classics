@@ -331,11 +331,15 @@ class Player(GravityActor):
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
         # is zero, we want the player to just fall out of the level
         super().update(self.health > 0)
-        self.LenghtF=0
-        self.LengthF = len(MyFruits) 
-        for i in range(self.LengthF):
+        # self.LenghtF=0                    # *** Redundant and not needed
+        #self.LengthF = range(len(MyFruits)) # *** Let us not use range in the for loop; bad form
+        # print(self.LengthF)               # *** running this we get range (0,0) all the time, so the for loop will never run.
+        # print(len(game.fruits))           # *** We need to look elsewhere. BUT can we access Game.fruits directly? Yes!
+
+        self.LengthF = range(len(game.fruits))                                   
+        for i in self.LengthF:
             print(str(i))
-            print(str(MyFruits[i].getFruitPosition())) 
+            print(str(game.fruits[i].getFruitPosition())) 
         self.fire_timer -= 1
         self.hurt_timer -= 1
 
@@ -587,6 +591,7 @@ class Game:
         # self.fruits such that it contains all existing fruits except those whose time_to_live counter has reached zero
         self.fruits = [f for f in self.fruits if f.time_to_live > 0]
         MyFruits=list(self.fruits)
+        # *** It is here that we have the problem Why (I'm thinking) can we not just use self.fruits directly?
         self.bolts = [b for b in self.bolts if b.active]
         self.enemies = [e for e in self.enemies if e.alive]
         self.pops = [p for p in self.pops if p.timer < 12]
