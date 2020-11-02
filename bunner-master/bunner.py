@@ -20,7 +20,7 @@ if pgzero_version < [1,2]:
     print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
     sys.exit()
 
-WIDTH = 480 
+WIDTH = 480
 HEIGHT = 800
 TITLE = "Infinite Bunner"
 
@@ -71,16 +71,16 @@ class PlayerState(Enum):
 # Constants representing directions
 DIRECTION_UP = 0
 DIRECTION_RIGHT = 1
-DIRECTION_DOWN = 2
-DIRECTION_LEFT = 3
+DIRECTION_LEFT = 2
+DIRECTION_DOWN = 3
 
-direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
+direction_keys = [keys.UP, keys.RIGHT, keys.LEFT, keys.DOWN]
 
 # X and Y directions indexed into by in_edge and out_edge in Segment
-# The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = down, 3 = left
+# The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = left, 3 = down
 # Numbers 0 to 3 correspond to up, right, down, left
-DX = [0,4,0,-4]
-DY = [-4,0,4,0]
+DX = [0,4,-4,0]
+DY = [-4,0,0,4]
 
 class Bunner(MyActor):
     MOVE_DISTANCE = 10
@@ -119,11 +119,46 @@ class Bunner(MyActor):
                 return
 
     def update(self):
-        # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
+        jumpDirection = 0
+        i = 0
+        offset = 40
+        for row in game.rows:
+            i += 1
+            rowType = type(row).__name__
+            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
+                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
+                    if rowType == "Water":
+                        for child in row.children:
+                           # print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
+                            if child.x - offset <= self.x and child.x + offset >= self.x:
+                                print ("jump pls")
+                                jumpDirection = 0
 
+                            else:
+                                print ("dont jump")
+                                jumpDirection = randrange(1,3)
+                    elif rowType == "Road":
+                        for child in row.children:
+                           # print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
+                            if child.x + offset <= self.x or child.x - offset >= self.x:
+                                print ("jump!")
+                                jumpDirection = 0
+
+                            else:
+                                print ("stop")
+                                jumpDirection = randrange(1,3)
+                                 
+                    else:
+                        for child in row.children:
+                            if type(child).__name__ == "Hedge":
+                                #print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+                                jumpDirection = randrange(1,3)
+                            if child.x - offset >= self.x and child.x + offset <= self.x:
+                                jumpDirection = 1
+                                print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+                        
+        self.input_queue.append(jumpDirection)
+        
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
@@ -642,10 +677,10 @@ class Game:
 
         try:
             if bunner:
-                music.set_volume(0.4)
+                music.set_volume(0.1)
             else:
                 music.play("theme")
-                music.set_volume(1)
+                music.set_volume(0.1)
         except:
             pass
 
