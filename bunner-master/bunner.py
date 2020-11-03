@@ -27,7 +27,7 @@ TITLE = "Infinite Bunner"
 ROW_HEIGHT = 40
 
 # See what happens when you change this to True
-DEBUG_SHOW_ROW_BOUNDARIES = False
+DEBUG_SHOW_ROW_BOUNDARIES = True
 
 # The MyActor class extends Pygame Zero's Actor class by allowing an object to have a list of child objects,
 # which are drawn relative to the parent object.
@@ -121,8 +121,8 @@ class Bunner(MyActor):
     def update(self):
         # Check each control direction
         for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
+            # if key_just_pressed(direction_keys[direction]):
+            self.input_queue.append(randint(0, 3))
 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
