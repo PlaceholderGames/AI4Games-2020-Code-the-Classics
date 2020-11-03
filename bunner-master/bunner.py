@@ -1,6 +1,6 @@
 # If the window is too tall to fit on the screen, check your operating system display settings and reduce display
 # scaling if it is enabled.
-import pgzero, pgzrun, pygame, sys
+import pgzero, pgzrun, pygame, sys, time
 from random import *
 from enum import Enum
 
@@ -71,7 +71,7 @@ class PlayerState(Enum):
 # Constants representing directions
 DIRECTION_UP = 0
 DIRECTION_RIGHT = 1
-DIRECTION_DOWN = 2
+DIRECTION_DOWN = 20
 DIRECTION_LEFT = 3
 
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
@@ -120,9 +120,45 @@ class Bunner(MyActor):
 
     def update(self):
         # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
+       # for direction in range(4):
+        jumpDirection = 0
+        i = 0
+        offset = 30
+        for row in game.rows:
+          #  i += 1
+            rowType = type(row).__name__
+            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
+                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
+                    if rowType == "Water":
+                        for child in row.children:
+                            if child.x - offset <= self.x and child.x + offset >= self.x:
+                                print ("JUMP")
+                                jumpDirection = 0
+                                time.sleep(0.1)
+                            else:
+                                print ("DO NOT JUMP")
+                                jumpDirection = randrange(1,3)
+                                if jumpDirection == 2:
+                                    jumpDirection = randrange(1,3)
+                    elif rowType == "Grass":
+                        for child in row.children:
+                            if type(child).__name__ == "Hedge":
+                                jumpDirection = randrange(1,3)
+                                if jumpDirection == 2:
+                                    jumpDirection = randrange(1,3)
+                            if child.x - offset >= self.x and child.x + offset <= self.x:
+                                jumpDirection = 1
+                                print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+                    else:
+                        for child in row.children:
+                            if type(child).__name__ == "Road":
+                                jumpDirection = randrange(1,3)
+                                if jumpDirection == 2:
+                                    jumpDirection = randrange(1,3)
+                            if child.x + offset >= self.x and child.x - offset >= self.x:
+                                jumpDirection = 1
+
+        self.input_queue.append(jumpDirection)  
 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
@@ -274,7 +310,7 @@ class Row(MyActor):
         for child_obj in self.children:
             if x >= child_obj.x - (child_obj.width / 2) - margin and x < child_obj.x + (child_obj.width / 2) + margin:
                 return child_obj
-
+    
         return None
 
     def push(self):
