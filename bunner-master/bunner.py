@@ -26,7 +26,8 @@ TITLE = "Infinite Bunner"
 
 ROW_HEIGHT = 40
 
-# See what happens when you change this to True
+# See what happens when you change this to True make sure to change it back to false
+#This here shows the measurements
 DEBUG_SHOW_ROW_BOUNDARIES = False
 
 # The MyActor class extends Pygame Zero's Actor class by allowing an object to have a list of child objects,
@@ -68,6 +69,8 @@ class PlayerState(Enum):
     SPLASH = 2
     EAGLE = 3
 
+
+
 # Constants representing directions
 DIRECTION_UP = 0
 DIRECTION_RIGHT = 1
@@ -82,9 +85,19 @@ direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 DX = [0,4,0,-4]
 DY = [-4,0,4,0]
 
-class Bunner(MyActor):
-    MOVE_DISTANCE = 10
+#This has been added.
+#This here is used to create the AI itself.
+class AI:
+    step = 0
+    def __init__(self, size, directions):
+        self.size = size
+        self.directions = directions
 
+# This is where you start.
+class Bunner(MyActor):
+    MOVE_DISTANCE = 10 
+
+#Add in size and brain to the perintheses
     def __init__(self, pos):
         super().__init__("blank", pos)
 
@@ -99,6 +112,46 @@ class Bunner(MyActor):
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
         self.min_y = self.y
+
+        #self.size = size
+        #self.brain = brain
+        #self.randomize()
+    #def randomize(self):
+     #   for i in range(0, self.tests):
+      #      directions = []
+       #     for z in range(0, self.size):
+        #        randomNum = random.randint(0, 4)
+         #       directions.append(randomNum)
+
+          #  b = Brain(1000, direction)
+
+    #Update bunner position
+    #def update(self):
+     #   numMoves = self.brain.step
+      #  if numMoves < self.size and self.dead == False:
+       #     if self.brain.direction[numMoves] == 0:
+        #        self.rect.y -= 10
+         #       self.step += 1 # this has been replaced from fitness.
+                #The self.rect is the length of the screen.
+          #  elif self.brain.direction[numMoves] == 1 and self.rect.y > 10:
+           #     self.rect.y += 25
+            #    self.step += 1
+            #elif self.brain.direction[numMoves] == 1 and self.rect.x > 10:
+             #   self.rect.x -= 25
+            #elif self.brain.direction[numMoves] == 1 and self.rect.x < 470:
+             #   self.rect.x += 25
+
+            #self.brain.step += 1
+
+        #This is for if the rabbit is crossing the river.
+        #if self.rect.y <= 175 and self.rect.y != 50 and self.dead == False:
+           # onlog = False
+           # for x in all_sprites:
+             #   if x.rect.colliderect(self):
+                 #   onLog = True
+                  #  break
+        
+
 
     def handle_input(self, dir):
         # Find row that player is trying to move to. This may or may not be the row they're currently standing on,
@@ -119,21 +172,33 @@ class Bunner(MyActor):
                 return
 
     def update(self):
-        # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
+        # Check each control direction #This has been changed, this is used for the keys.
+       # for direction in range(4):
+          #  if key_just_pressed(direction_keys[direction]):
+             #   self.input_queue.append(direction)
 
+        # This here is used for the movement of the bunner.
+       # for direction in range(4):
+       
+       # This here is what will make the bunny move randomly
+       # self.input_queue.append(randrange(0, 4))
+        self.input_queue.append(0)
+                        
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
-
+            
             # Are we on the ground, and are there inputs to process?
             if self.timer == 0 and len(self.input_queue) > 0:
                 # Take the next input off the queue and process it
                 self.handle_input(self.input_queue.pop(0))
 
             land = False
+
+            # This has been added
+         #   if child_obj >= row.y:
+        #        self.input_queue.append(1 or 3)
+                
             if self.timer > 0:
                 # Apply movement
                 self.x += DX[self.direction]
@@ -204,6 +269,7 @@ class Bunner(MyActor):
             # sprite is a suitable method of displaying the splash image.
             self.image = "splash" + str(int((100 - self.timer) / 2))
 
+# Probably best to stop here.
 # Mover is the base class for Car, Log and Train
 # The thing they all have in common, besides inheriting from MyActor, is that they need to store whether they're
 # moving left or right and update their X position each frame
