@@ -123,7 +123,7 @@ class Bunner(MyActor):
        # for direction in range(4):
         jumpDirection = 0
         i = 0
-        offset = 30
+        offset = 100
         for row in game.rows:
           #  i += 1
             rowType = type(row).__name__
@@ -134,7 +134,7 @@ class Bunner(MyActor):
                             if child.x - offset <= self.x and child.x + offset >= self.x:
                                 print ("JUMP")
                                 jumpDirection = 0
-                                time.sleep(0.1)
+                                break
                             else:
                                 print ("DO NOT JUMP")
                                 jumpDirection = randrange(1,3)
