@@ -5,7 +5,7 @@ from pygame.math import Vector2
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
-if sys.version_info < (3,5):
+if sys.version_info < (3, 5):
     print("This game requires at least version 3.5 of Python. Please download it from www.python.org")
     sys.exit()
 
@@ -15,8 +15,10 @@ if sys.version_info < (3,5):
 # a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
 # We're using a Python feature called list comprehension - this is explained in the Bubble Bobble/Cavern chapter.
 pgzero_version = [int(s) if s.isnumeric() else s for s in pgzero.__version__.split('.')]
-if pgzero_version < [1,2]:
-    print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
+if pgzero_version < [1, 2]:
+    print(
+        "This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(
+            pgzero.__version__))
     sys.exit()
 
 WIDTH = 800
@@ -24,7 +26,6 @@ HEIGHT = 480
 TITLE = "Substitute Soccer"
 
 HALF_WINDOW_W = WIDTH / 2
-
 # Size of level, including both the pitch and the boundary surrounding it
 LEVEL_W = 1000
 LEVEL_H = 1400
@@ -76,6 +77,7 @@ DEBUG_SHOW_PEERS = False
 DEBUG_SHOW_SHOOT_TARGET = False
 DEBUG_SHOW_COSTS = False
 
+
 class Difficulty:
     def __init__(self, goalie_enabled, second_lead_enabled, speed_boost, holdoff_timer):
         self.goalie_enabled = goalie_enabled
@@ -92,15 +94,19 @@ class Difficulty:
         # Hold-off timer limits rate at which computer-controlled players can pass the ball
         self.holdoff_timer = holdoff_timer
 
+
 DIFFICULTY = [Difficulty(False, False, 0, 120), Difficulty(False, True, 0.1, 90), Difficulty(True, True, 0.2, 60)]
+
 
 # Custom sine/cosine functions for angles of 0 to 7, where 0 is up,
 # 1 is up+right, 2 is right, etc.
 def sin(x):
-    return math.sin(x*math.pi/4)
+    return math.sin(x * math.pi / 4)
+
 
 def cos(x):
-    return sin(x+2)
+    return sin(x + 2)
+
 
 # Convert a vector to an angle in the range 0 to 7
 def vec_to_angle(vec):
@@ -108,10 +114,12 @@ def vec_to_angle(vec):
     # https://gamedev.stackexchange.com/questions/14602/what-are-atan-and-atan2-used-for-in-games
     return int(4 * math.atan2(vec.x, -vec.y) / math.pi + 8.5) % 8
 
+
 # Convert an angle  in the range 0 to 7 to a direction vector. We use -cos rather than cos as increasing angles move
 # in a clockwise rather than the usual anti-clockwise direction.
 def angle_to_vec(angle):
     return Vector2(sin(angle), -cos(angle))
+
 
 # Used when calling functions such as sorted and min.
 # todo explain more
@@ -120,15 +128,17 @@ def angle_to_vec(angle):
 def dist_key(pos):
     return lambda p: (p.vpos - pos).length()
 
+
 # Turn a vector into a unit vector - i.e. a vector with length 1
 # We also return the original length, before normalisation.
 # We check for zero length, as trying to normalise a zero-length vector results in an error
 def safe_normalise(vec):
     length = vec.length()
     if length == 0:
-        return Vector2(0,0), 0
+        return Vector2(0, 0), 0
     else:
         return vec.normalize(), length
+
 
 # The MyActor class extends Pygame Zero's Actor class by providing the attribute 'vpos', which stores the object's
 # current position using Pygame's Vector2 class. All code should change or read the position via vpos, as opposed to
@@ -145,9 +155,11 @@ class MyActor(Actor):
         self.pos = (self.vpos.x - offset_x, self.vpos.y - offset_y)
         super().draw()
 
+
 # Ball physics model parameters
 KICK_STRENGTH = 11.5
 DRAG = 0.98
+
 
 # ball physics for one axis
 def ball_physics(pos, vel, bounds):
@@ -161,6 +173,7 @@ def ball_physics(pos, vel, bounds):
     # Return new position and velocity, applying drag
     return pos, vel * DRAG
 
+
 # Work out number of physics steps for ball to travel given distance
 def steps(distance):
     # Initialize step count and initial velocity
@@ -171,6 +184,7 @@ def steps(distance):
         distance, steps, vel = distance - vel, steps + 1, vel * DRAG
 
     return steps
+
 
 class Goal(MyActor):
     def __init__(self, team):
@@ -183,6 +197,7 @@ class Goal(MyActor):
     def active(self):
         # Is ball within 500 pixels on the Y axis?
         return abs(game.ball.vpos.y - self.vpos.y) < 500
+
 
 # Calculate if player 'target' is a good target for a pass from player 'source'
 # target can also be a goal
@@ -206,7 +221,7 @@ def targetable(target, source):
             # from the safe_normalise function), the result of which is a number between -1 and 1. In this case we use
             # the result to determine whether player 'p' (vector v1) is in roughly the same direction as player 'target'
             # (vector v0), from the point of view of player 'source'.
-            if p.team != target.team and d1 > 0 and d1 < d0 and v0*v1 > 0.8:
+            if p.team != target.team and d1 > 0 and d1 < d0 and v0 * v1 > 0.8:
                 return False
 
     # If target is on the same team, and ahead of source, and not too far away, and source is facing
@@ -217,16 +232,19 @@ def targetable(target, source):
     # See above for more explanation of dot product
     return target.team == source.team and d0 > 0 and d0 < 300 and v0 * angle_to_vec(source.dir) > 0.8
 
+
 # Get average of two numbers; if the difference between the two is less than 1,
 # snap to the second number. Used in Ball.update()
 def avg(a, b):
-    return b if abs(b-a) < 1 else (a+b)/2
+    return b if abs(b - a) < 1 else (a + b) / 2
+
 
 def on_pitch(x, y):
     # Only used when dribbling
-    return PITCH_RECT.collidepoint(x,y) \
-           or GOAL_0_RECT.collidepoint(x,y) \
-           or GOAL_1_RECT.collidepoint(x,y)
+    return PITCH_RECT.collidepoint(x, y) \
+           or GOAL_0_RECT.collidepoint(x, y) \
+           or GOAL_1_RECT.collidepoint(x, y)
+
 
 class Ball(MyActor):
     def __init__(self):
@@ -323,7 +341,8 @@ class Ball(MyActor):
 
             # Find the closest targetable player or goal (could be None)
             # First we create a list of all players/goals which can be targeted
-            targetable_players = [p for p in game.players + game.goals if p.team == self.owner.team and targetable(p, self.owner)]
+            targetable_players = [p for p in game.players + game.goals if
+                                  p.team == self.owner.team and targetable(p, self.owner)]
 
             if len(targetable_players) > 0:
                 # Choose the nearest one
@@ -341,7 +360,8 @@ class Ball(MyActor):
                 # If the owner is computer-controlled, we kick if the ball's hold-off timer has expired
                 # and there is a targetable player or goal, and the targetable player or goal is in a more
                 # favourable location (according to cost()) than the owner's location
-                do_shoot = self.timer <= 0 and target and cost(target.vpos, self.owner.team) < cost(self.owner.vpos, self.owner.team)
+                do_shoot = self.timer <= 0 and target and cost(target.vpos, self.owner.team) < cost(self.owner.vpos,
+                                                                                                    self.owner.team)
 
             if do_shoot:
                 # play a random kick effect
@@ -399,6 +419,63 @@ class Ball(MyActor):
                 # We no longer have an owner
                 self.owner = None
 
+    def shoot(self, team, target):
+        # play a random kick effect
+        game.play_sound("kick", 4)
+
+        if target:
+            # If there is a targetable player or goal, kick towards it
+
+            # If the owner is player-controlled, we assume the player will continue to hold the same direction
+            # keys down after the pass, so the target  will start moving in the same direction as the
+            # current owner; on this assumption, we will kick the ball slightly ahead of the target player's
+            # current position,  through a process of iterative refinement
+
+            # If the owner is computer-controlled, or the target is a goal, we only execute the loop once and
+            # so do not apply lead, as there are no keys being held down and goals don't move.
+
+            r = 0
+
+            # Decide how many times we're going to go through the loop - the more times, the more accurate
+            iterations = 8 if team.human() and isinstance(target, Player) else 1
+
+            for i in range(iterations):
+                # In the first loop, t will simply be the position of the targeted player or goal.
+                # In subsequent loops (if there are any), it will represent a position which is at the
+                # target's feet plus a bit further in whichever direction the player is currently pressing.
+                t = target.vpos + angle_to_vec(self.owner.dir) * r
+
+                # Get direction vector and distance between target pos and us
+                vec, length = safe_normalise(t - self.vpos)
+
+                # The steps function works out the number of physics steps the ball will take to travel
+                # the given distance
+                # todo r
+                r = HUMAN_PLAYER_WITHOUT_BALL_SPEED * steps(length)
+        else:
+            # We're not targeting a player or goal, so just kick the ball straight ahead
+
+            # Get direction vector
+            vec = angle_to_vec(self.owner.dir)
+
+            # Make a rough guess at which player the ball might end up closest to so, we can set them as the new
+            # active player. Pick a point 250 pixels ahead and find the nearest player to that.
+            target = min([p for p in game.players if p.team == self.owner.team],
+                         key=dist_key(self.vpos + (vec * 250)))
+
+        if isinstance(target, Player):
+            # If we just kicked the ball towards a player, make that player the new active player for this team
+            game.teams[self.owner.team].active_control_player = target
+
+        self.owner.timer = 10  # Owner can't regain the ball for at least 10 frames
+
+        # Set velocity
+        self.vel = vec * KICK_STRENGTH
+
+        # We no longer have an owner
+        self.owner = None
+
+
 # Return True if the given position is inside the level area, otherwise False
 # Takes the goals into account so you can't run through them
 def allow_movement(x, y):
@@ -416,6 +493,7 @@ def allow_movement(x, y):
         # of the level
         return abs(y - HALF_LEVEL_H) < HALF_LEVEL_H
 
+
 # Generate a score for a given position, where lower numbers are considered to be better.
 # This is called when a computer-controlled player with the ball is working out which direction to run in, or whether
 # to pass the ball to another player, or kick it into the goal.
@@ -432,15 +510,16 @@ def cost(pos, team, handicap=0):
     inverse_own_goal_distance = 3500 / (pos - own_goal_pos).length()
 
     result = inverse_own_goal_distance \
-            + sum([4000 / max(24, (p.vpos - pos).length()) for p in game.players if p.team != team]) \
-            + ((pos.x - HALF_LEVEL_W)**2 / 200 \
-            - pos.y * (4 * team - 2)) \
-            + handicap
+             + sum([4000 / max(24, (p.vpos - pos).length()) for p in game.players if p.team != team]) \
+             + ((pos.x - HALF_LEVEL_W) ** 2 / 200 \
+                - pos.y * (4 * team - 2)) \
+             + handicap
 
     return result, pos
 
+
 class Player(MyActor):
-    ANCHOR = (25,37)
+    ANCHOR = (25, 37)
 
     def __init__(self, x, y, team):
         # Player objects are recreated each time there is a kickoff
@@ -476,6 +555,8 @@ class Player(MyActor):
         # Used when DEBUG_SHOW_TARGETS is on
         self.debug_target = Vector2(0, 0)
 
+        self.ai = MyAI(self)
+
     def active(self):
         # Is ball within 400 pixels on the Y axis? If so I'll be considered active, meaning I'm currently doing
         # something useful in the game like trying to get the ball. If I'm not active, I'll either mark another player,
@@ -488,7 +569,7 @@ class Player(MyActor):
 
         # One of the main jobs of this method is to decide where the player will run to, and at what speed.
         # The default is to run slowly towards home position, but target and speed may be overwritten in the code below
-        target = Vector2(self.home)       # Take a copy of home position
+        target = Vector2(self.home)  # Take a copy of home position
         speed = PLAYER_DEFAULT_SPEED
 
         # Some shorthand variables to make the code below a bit easier to follow
@@ -497,7 +578,8 @@ class Player(MyActor):
         i_am_kickoff_player = self == game.kickoff_player
         ball = game.ball
 
-        if self == game.teams[self.team].active_control_player and my_team.human() and (not pre_kickoff or i_am_kickoff_player):
+        if self == game.teams[self.team].active_control_player and my_team.human() and (
+                not pre_kickoff or i_am_kickoff_player):
             # This player is the currently active player for its team, and is player-controlled, and either we're not
             # currently waiting for kickoff, or this player is the designated kickoff player.
             # The last part of the condition ensures that in a 2 player game, player 2 can't make their active player
@@ -509,8 +591,9 @@ class Player(MyActor):
             else:
                 speed = HUMAN_PLAYER_WITHOUT_BALL_SPEED
 
-            # Find target by calling the controller for the player's team todo comment
-            target = self.vpos + my_team.controls.move(speed)
+            # (17123437 - Filipe Serrazina) AI Operations
+            self.ai.eval()
+            target = self.ai.update(speed)
 
         elif ball.owner != None:
             # Someone has the ball - is it me?
@@ -615,8 +698,8 @@ class Player(MyActor):
                 # The code below simulates the ball's movement over a series of frames, working out where it would be
                 # after each frame. We also work out how far the player could have moved at each frame, and whether
                 # that distance would be enough to reach the currently simulated location of the ball.
-                target = Vector2(ball.vpos)     # current simulated location of ball
-                vel = Vector2(ball.vel)         # ball velocity - slows down each frame due to friction
+                target = Vector2(ball.vpos)  # current simulated location of ball
+                vel = Vector2(ball.vel)  # ball velocity - slows down each frame due to friction
                 frame = 0
 
                 # DRIBBLE_DIST_X is the distance at which a player can gain control of the ball.
@@ -624,7 +707,8 @@ class Player(MyActor):
                 # is moving that slowly, it's not going to move much further, so there's no point in simulating dozens
                 # more frames of very tiny movements. If you experience a decreased frame rate when no one has the ball,
                 # try increasing 0.5 to a higher number.
-                while (target - self.vpos).length() > PLAYER_INTERCEPT_BALL_SPEED * frame + DRIBBLE_DIST_X and vel.length() > 0.5:
+                while (
+                        target - self.vpos).length() > PLAYER_INTERCEPT_BALL_SPEED * frame + DRIBBLE_DIST_X and vel.length() > 0.5:
                     target += vel
                     vel *= DRAG
                     frame += 1
@@ -674,7 +758,7 @@ class Player(MyActor):
         dir_diff = (target_dir - self.dir)
         self.dir = (self.dir + [0, 1, 1, 1, 1, 7, 7, 7][dir_diff % 8]) % 8
 
-        suffix = str(self.dir) + str((int(self.anim_frame) // 18) + 1) # todo
+        suffix = str(self.dir) + str((int(self.anim_frame) // 18) + 1)  # todo
 
         self.image = "player" + str(self.team) + suffix
         self.shadow.image = "players" + suffix
@@ -682,6 +766,142 @@ class Player(MyActor):
         # Update shadow position to track player
         self.shadow.vpos = Vector2(self.vpos)
 
+# ===========================================================================================================
+# =============================== COURSEWORK (17123437 - Filipe Serrazina) ==================================
+# ===========================================================================================================
+
+# (17123437 - Filipe Serrazina) Helper function used to calculate the magnitude/length of a vector2
+def magnitude(v):
+    return math.sqrt(pow(v.x, 2) + pow(v.y, 2))
+
+# (17123437 - Filipe Serrazina) Helper function used to normalize a vector2
+def normalize(v):
+    vmag = magnitude(v)
+    if vmag == 0:
+        vmag = 0.1
+    return Vector2(v.x / vmag, v.y / vmag)
+
+# (17123437 - Filipe Serrazina) Main AI of the coursework
+class MyAI:
+    def __init__(self, controlled_player):
+        self.player = controlled_player
+        # STATES = "OPPONENT", "TEAM", "NONE", "SELF" // These determine who has the ball
+        self.state = "NONE"
+
+    def eval(self):
+        # No one has the ball
+        if game.ball.owner is None:
+            self.state = "NONE"
+        # I have the ball
+        elif game.ball.owner == self.player:
+            self.state = "SELF"
+        # A teammate has the blayer
+        elif game.ball.owner.team == self.player.team:
+            self.state = "TEAM"
+        # An opponent has the ball
+        else:
+            self.state = "OPPONENT"
+
+    def update(self, speed):
+        ballPos = game.ball.vpos
+        
+        # If no one has the ball or the opponent has the ball
+        if (self.state is "NONE") or (self.state is "OPPONENT"):
+            # Move towards the ball/opponent and get the ball
+            targetDir = ballPos - self.player.vpos
+            return self.player.vpos + normalize(targetDir) * speed
+
+        # If I have the ball
+        elif self.state is "SELF":
+
+            # Helpful variables for quick use
+            myPos = self.player.vpos
+            goalPos = game.goals[0].vpos
+
+            dirToGoal = myPos - goalPos
+            distToGoal = magnitude(dirToGoal)
+
+            team = game.teams[self.player.team]
+
+            targetable_players = [p for p in game.players + game.goals if
+                                  p.team == self.player.team and targetable(p, self.player)]
+
+            # Do we have a targetable object?
+            if len(targetable_players) > 0:
+                # Get the closest one and pass them the ball
+                target = min(targetable_players, key=dist_key(self.player.vpos))
+                game.debug_shoot_target = target.vpos
+                
+            # If we don't have any targetable objects
+            else:
+                # Then we don't have a target at all
+                target = None
+
+            # If we don't have a target
+            if target is None:
+                # Make an unreasonable target position
+                targetPos = Vector2(100000, 100000)
+            # If we do have a target
+            else:
+                # Get its position
+                targetPos = target.vpos
+
+            # Get the direction to the target
+            dirToTarget = targetPos - myPos
+            # Get the distance to the target
+            distToTarget = magnitude(dirToTarget)
+
+            # If we're close enough to the target
+            if distToTarget < 300:
+                # Give them the ball and stop
+                game.ball.shoot(team, game.goals[0])
+                self.state = "NONE"
+                return self.player.vpos
+
+            # If we're not close to the target, just keep moving towards the goal
+
+            '''
+            # Bit of the FSM that handles opponent player avoidance, due to the aggressive way
+            # the AI plays, this is more of a hindrance than actual help
+            
+            # Get the closest opponent player
+            opponent_players = [p for p in game.players if p.team != self.player.team]
+            closest_opponent = min(opponent_players, key=dist_key(self.player.vpos))
+
+            # Get the direction towards them
+            playerPos = self.player.vpos
+            oppPos = closest_opponent.vpos
+            dirToOpponent = closest_opponent.vpos - self.player.vpos
+
+            
+
+            print("(" + str(playerPos.x) + ", " + str(playerPos.y) + ") VS (" + str(oppPos.x) + ", " + str(oppPos.y) + ")")
+            
+            if self.player.vpos.y > closest_opponent.vpos.y:
+                dirToOpponent.y = 0
+                dirToOpoonent = normalize(dirToOpponent)
+            else:
+                dirToOpponent.x = 0
+                dirToOpponent.y = 0
+            '''
+            
+            dirNormalized = normalize(dirToGoal)
+            return self.player.vpos - dirNormalized * speed
+
+        elif self.state is "TEAM":
+            if self.player.active():
+                # If I'm near enough to the ball, try to run somewhere useful, and unique to this player - we
+                # don't want all players running to the same place. Target is halfway between home and a point
+                # 400 pixels ahead of the ball. Team 0 are trying to score in the goal at the top of the
+                # pitch, team 1 the goal at the bottom
+                direction = -1 if self.player.team == 0 else 1
+                self.player.home.x = (ballPos.x + self.player.home.x) / 2
+                self.player.home.y = (ballPos.y + 400 * direction + self.player.home.y) / 2
+            # If we're not active, we'll do the default action of moving towards our home position
+
+# ===========================================================================================================
+# ===========================================================================================================
+# ===========================================================================================================
 
 class Team:
     def __init__(self, controls):
@@ -712,7 +932,7 @@ class Game:
             pass
 
         self.score_timer = 0
-        self.scoring_team = 1   # Which team has just scored - also governs who kicks off next
+        self.scoring_team = 1  # Which team has just scored - also governs who kicks off next
 
         self.reset()
 
@@ -776,7 +996,7 @@ class Game:
 
             self.scoring_team = 0 if self.ball.vpos.y < HALF_LEVEL_H else 1
             self.teams[self.scoring_team].score += 1
-            self.score_timer = 60      # Game goes into "scored a goal" state for 60 frames
+            self.score_timer = 60  # Game goes into "scored a goal" state for 60 frames
 
         # Each frame, reset mark and lead of each player
         for b in self.players:
@@ -797,7 +1017,7 @@ class Game:
 
             if self.difficulty.goalie_enabled:
                 # Find the nearest opposing team player to the goal, and make them mark the goal
-                nearest = min([p for p in self.players if p.team != team], key = dist_key(owners_target_goal.vpos))
+                nearest = min([p for p in self.players if p.team != team], key=dist_key(owners_target_goal.vpos))
 
                 # Set the ball owner's peer to mark whoever the goalie was marking, then set the goalie to mark the goal
                 o.peer.mark = nearest.mark
@@ -812,7 +1032,7 @@ class Game:
                         and p.timer <= 0
                         and (not self.teams[other_team].human() or p != self.teams[other_team].active_control_player)
                         and not isinstance(p.mark, Goal)],
-                       key = dist_key(pos))
+                       key=dist_key(pos))
 
             # a is a list of players from l who are upfield of the ball owner (i.e. towards our own goal, away from the
             # direction of the goal the ball owner is trying to score in). b is all the other players. It's possible for
@@ -826,7 +1046,7 @@ class Game:
             # list has at least 2 items. But we don't want any values in the final list to be None, hence the final part
             # of the list comprehension 'for s in t if s', which discards any None values from the final result
             NONE2 = [None] * 2
-            zipped = [s for t in zip(a+NONE2, b+NONE2) for s in t if s]
+            zipped = [s for t in zip(a + NONE2, b + NONE2) for s in t if s]
 
             # Either one or two players (depending on difficulty settings) follow the ball owner, one from up-field and
             # one from down-field of the owner
@@ -869,7 +1089,7 @@ class Game:
                         return dist_to_ball
 
                 self.teams[team_num].active_control_player = min([p for p in game.players if p.team == team_num],
-                                                                 key = dist_key_weighted)
+                                                                 key=dist_key_weighted)
 
         # Get vector between current camera pos and ball pos
         camera_ball_vec, distance = safe_normalise(self.camera_focus - self.ball.vpos)
@@ -891,7 +1111,7 @@ class Game:
         # 3. Add the two goals at each end of the list
         # (note - technically we're not adding items to the list in steps two and three, we're creating a new list
         # which consists of the old list plus the new items)
-        objects = sorted([self.ball] + self.players, key = lambda obj: obj.y)
+        objects = sorted([self.ball] + self.players, key=lambda obj: obj.y)
         objects = objects + [obj.shadow for obj in objects]
         objects = [self.goals[0]] + objects + [self.goals[1]]
 
@@ -911,45 +1131,46 @@ class Game:
                 if game.ball.owner and p.lead:
                     line_start = game.ball.owner.vpos - offset
                     line_end = p.vpos - offset
-                    pygame.draw.line(screen.surface, (0,0,0), line_start, line_end)
+                    pygame.draw.line(screen.surface, (0, 0, 0), line_start, line_end)
 
         if DEBUG_SHOW_TARGETS:
             for p in self.players:
                 line_start = p.debug_target - offset
                 line_end = p.vpos - offset
-                pygame.draw.line(screen.surface, (255,0,0), line_start, line_end)
+                pygame.draw.line(screen.surface, (255, 0, 0), line_start, line_end)
 
         if DEBUG_SHOW_PEERS:
             for p in self.players:
                 line_start = p.peer.vpos - offset
                 line_end = p.vpos - offset
-                pygame.draw.line(screen.surface, (0,0,255), line_start, line_end)
+                pygame.draw.line(screen.surface, (0, 0, 255), line_start, line_end)
 
         if DEBUG_SHOW_SHOOT_TARGET:
             if self.debug_shoot_target and self.ball.owner:
                 line_start = self.ball.owner.vpos - offset
                 line_end = self.debug_shoot_target - offset
-                pygame.draw.line(screen.surface, (255,0,255), line_start, line_end)
-        
+                pygame.draw.line(screen.surface, (255, 0, 255), line_start, line_end)
+
         if DEBUG_SHOW_COSTS and self.ball.owner:
-            for x in range(0,LEVEL_W,60):
+            for x in range(0, LEVEL_W, 60):
                 for y in range(0, LEVEL_H, 26):
-                    c = cost(Vector2(x,y), self.ball.owner.team)[0]
-                    screen_pos = Vector2(x,y)-offset
-                    screen_pos = (screen_pos.x,screen_pos.y)    # draw.text can't reliably take a Vector2
+                    c = cost(Vector2(x, y), self.ball.owner.team)[0]
+                    screen_pos = Vector2(x, y) - offset
+                    screen_pos = (screen_pos.x, screen_pos.y)  # draw.text can't reliably take a Vector2
                     screen.draw.text("{0:.0f}".format(c), center=screen_pos)
 
     def play_sound(self, name, c):
         # Only play sounds if we're not in the menu state
         if state != State.MENU:
             try:
-                getattr(sounds, name+str(random.randint(0, c-1))).play()
+                getattr(sounds, name + str(random.randint(0, c - 1))).play()
             except:
                 pass
 
 
 # Dictionary to keep track of which keys are currently being held down
 key_status = {}
+
 
 # Was the given key just pressed? (i.e. is it currently down, but wasn't down on the previous frame?)
 def key_just_pressed(key):
@@ -969,6 +1190,7 @@ def key_just_pressed(key):
     key_status[key] = keyboard[key]
 
     return result
+
 
 class Controls:
     def __init__(self, player_num):
@@ -1001,6 +1223,7 @@ class Controls:
     def shoot(self):
         return key_just_pressed(self.key_shoot)
 
+
 # Pygame Zero calls the update and draw functions each frame
 
 class State(Enum):
@@ -1008,9 +1231,11 @@ class State(Enum):
     PLAY = 1
     GAME_OVER = 2
 
+
 class MenuState(Enum):
     NUM_PLAYERS = 0
     DIFFICULTY = 1
+
 
 def update():
     global state, game, menu_state, menu_num_players, menu_difficulty
@@ -1061,6 +1286,7 @@ def update():
             menu_state = MenuState.NUM_PLAYERS
             game = Game()
 
+
 def draw():
     game.draw()
 
@@ -1097,6 +1323,7 @@ def draw():
         for i in range(2):
             img = "l" + str(i) + str(game.teams[i].score)
             screen.blit(img, (HALF_WINDOW_W + 25 - 125 * i, 144))
+
 
 # Set up sound
 try:
