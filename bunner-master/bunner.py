@@ -71,7 +71,7 @@ class PlayerState(Enum):
 # Constants representing directions
 DIRECTION_UP = 0
 DIRECTION_RIGHT = 1
-DIRECTION_DOWN = 20
+DIRECTION_DOWN = 2
 DIRECTION_LEFT = 3
 
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
@@ -125,7 +125,7 @@ class Bunner(MyActor):
         i = 0
         offset = 100
         for row in game.rows:
-          #  i += 1
+           i += 1
             rowType = type(row).__name__
             if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
                 if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
@@ -140,7 +140,7 @@ class Bunner(MyActor):
                                 jumpDirection = randrange(1,3)
                                 if jumpDirection == 2:
                                     jumpDirection = randrange(1,3)
-                    elif rowType == "Grass":
+                    else rowType == "Grass":
                         for child in row.children:
                             if type(child).__name__ == "Hedge":
                                 jumpDirection = randrange(1,3)
@@ -149,14 +149,15 @@ class Bunner(MyActor):
                             if child.x - offset >= self.x and child.x + offset <= self.x:
                                 jumpDirection = 1
                                 print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
-                    else:
-                        for child in row.children:
-                            if type(child).__name__ == "Road":
-                                jumpDirection = randrange(1,3)
-                                if jumpDirection == 2:
-                                    jumpDirection = randrange(1,3)
-                            if child.x + offset >= self.x and child.x - offset >= self.x:
-                                jumpDirection = 1
+                  ''' # else:
+                    #    for child in row.children:
+                     #       if type(child).__name__ == "Road":
+                      #          jumpDirection = randrange(1,3)
+                       #         if jumpDirection == 2:
+                        #            jumpDirection = randrange(1,3)
+                         #   if child.x + offset >= self.x and child.x - offset >= self.x:
+                          #      jumpDirection = 1
+                          '''
 
         self.input_queue.append(jumpDirection)  
 
