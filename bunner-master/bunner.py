@@ -119,11 +119,48 @@ class Bunner(MyActor):
                 return
 
     def update(self):
-        # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
+        
+        # Check each control direction  The Original Code, for keyboard movement rather than automatic movement
+        
+        #for direction in range(4):
+            #if key_just_pressed(direction_keys[direction]):
+               # self.input_queue.append(direction)
 
+               
+        move_direction = 0 #0 - up, 1- right, 2 - down, 3 - left   keep moving forward for now
+        i = 0
+        
+        for row in game.rows:
+            i = i + 1
+            rowStrType = str(type(row)) #Gets the type of row at bunner's location
+            rowType = type(row).__name__ #Gets the name of the current row type
+            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
+                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[move_direction]:
+                    if rowType == "Road": #When the bunner is on the road
+                        for child in row.children:
+                            print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
+                            print(rowStrType)
+                            '''
+                            if child.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
+                                if child.x != self.x + Bunner.MOVE_DISTANCE * DX[move_direction]:
+                                    move_direction = 1
+                            else:
+                                move_direction = 1
+                            '''
+            '''
+            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
+                if row.allow_movement(self.x + Bunner.MOVE_DISTANCE * DX[move_direction]):
+                    return
+              
+            '''
+        
+                    
+        #sys.exit() #For testing purposes
+        self.input_queue.append(move_direction) #Move based on the variable 'move_direction'
+        
+        #Add A* here, move away from objects
+
+        
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
@@ -642,10 +679,10 @@ class Game:
 
         try:
             if bunner:
-                music.set_volume(0.4)
+                music.set_volume(0.1)
             else:
                 music.play("theme")
-                music.set_volume(1)
+                music.set_volume(0.1)
         except:
             pass
 
