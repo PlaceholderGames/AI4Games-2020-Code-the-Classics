@@ -134,7 +134,7 @@ class Bunner(MyActor):
                             if child.x - offset <= self.x and child.x + offset >= self.x:
                                 print ("JUMP")
                                 jumpDirection = 0
-                                #break
+                                break
                                 time.sleep(0.5)
                             else:
                                 print ("DO NOT JUMP")
