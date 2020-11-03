@@ -140,12 +140,28 @@ class Bunner(MyActor):
                 self.y += DY[self.direction]
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
-
+                
+            current_found = False           # *** Putting in a flag, so we can run once more through the for loop
             current_row = None
+            next_row = None                 # *** We need a new variable :-) to store the next row data
+            
             for row in game.rows:
-                if row.y == self.y:
-                    current_row = row
+                if current_found:
+                    next_row == row
+                    # *** print('Next row.y: ' + str(row.y))
                     break
+                if row.y == self.y:
+                    current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
+                    current_found = True
+                    # *** print('Current row.y: ' + str(row.y))
+                
+            # *** print(self.y)             # *** This gives the absolute y coordinate of the row Bunner is in,
+                                            # *** starting at -320 and going up in decrements of 40; so the next row
+                                            # *** up is -360. So, why start at -320? because y=0 is the bottom row
+                                            # *** of the starting play area on screen.
+                                            
+            # *** Here is where we would do a check for potential collisions, but make sure that the PlayerState is
+            # *** not changed by the collision checks you might do
 
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
@@ -156,7 +172,8 @@ class Bunner(MyActor):
                 # check_collision is a Y offset which affects the position of this new child object. If the player is
                 # hit by a car the Y offset is zero, but if they are hit by a train the returned offset is 8 as this
                 # positioning looks a little better.
-                self.state, dead_obj_y_offset = current_row.check_collision(self.x)
+                self.state, dead_obj_y_offset = current_row.check_collision(self.x)# *** current_row is of class Row
+                # *** The above is where collisions are detected. If you use next_row, you could detect potential collisions
                 if self.state == PlayerState.ALIVE:
                     # Water rows move the player along the X axis, if standing on a log
                     self.x += current_row.push()
@@ -539,7 +556,7 @@ class Road(ActiveRow):
                         if abs(dx) < 100 and ((child_obj.dx < 0) != (dx < 0)) and (y_offset == 0 or abs(child_obj.dx) > 1):
                             child_obj.play_sound(car_sound_num)
 
-    def check_collision(self, x):
+    def check_collision(self, x):           # *** This is the road collision check
         if self.collide(x):
             game.play_sound("splat", 1)
             return PlayerState.SPLAT, 0
