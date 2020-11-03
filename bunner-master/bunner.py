@@ -120,9 +120,23 @@ class Bunner(MyActor):
 
     def update(self):
         # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
+
+        MoveDirection = randrange(0, 4)
+        I = 0
+        for row in game.rows:
+            I+= 1
+            RowType = str(type (row))
+            #print ("row "+str(I)+":"+RowType)
+           # for theboy in row.children:
+            #    print ("row "+str(I)+":"+str (type(theboy)))
+          
+            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[MoveDirection]:
+                if row.allow_movement(self.x + Bunner.MOVE_DISTANCE * DX[MoveDirection]) is False:
+                    return
+ 
+        
+        #sys.exit()
+        self.input_queue.append(MoveDirection)
 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
