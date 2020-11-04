@@ -286,11 +286,13 @@ class Fruit(GravityActor):
 
         anim_frame = str([0, 1, 2, 1][(game.timer // 6) % 4])
         self.image = "fruit" + str(self.type) + anim_frame
+        # *** Here you could create methods to return the coordinates of fruit
 
 class Player(GravityActor):
     def __init__(self):
         # Call constructor of parent class. Initial pos is 0,0 but reset is always called straight afterwards which
         # will set the actual starting position.
+        # *** This is likely where you would need to include attributes and AI code
         super().__init__((0, 0))
 
         self.lives = 2
@@ -350,6 +352,17 @@ class Player(GravityActor):
                     self.reset()
         else:
             # We're not hurt
+            
+            # *** Here is probably where I would do the AI code, replacing the keyboard stuff
+
+            for robot in game.enemies:      # *** We are going to print off the location of baddies
+                # *** print('Robot location: (' + str(robot.x) + ',' + str(robot.y) + ')')
+                if robot.y == self.y:
+                    print('Oh no! Danger, Will Robinson!!!')
+                else:
+                    print('Super SAFE, Yeah!!!')
+            # ***print('Player location: (' + str(self.x) + ',' + str(self.y) + ')')
+
             # Get keyboard input. dx represents the direction the player is facing
             dx = 0
             if keyboard.left:
@@ -527,7 +540,8 @@ class Game:
 
         self.fruits = []
         self.bolts = []
-        self.enemies = []
+        self.enemies = []   # *** Ooh, self.enemise in the Game class means game.enemies is the globally accessible list
+        
         self.pops = []
         self.orbs = []
 
