@@ -853,14 +853,15 @@ class MyAI:
 
             # If we're close enough to the target
             if distToTarget < 300:
-                # Give them the ball and stop
-                game.ball.shoot(team, game.goals[0])
-                self.state = "NONE"
-                return self.player.vpos
+                if target.vpos.y < self.player.vpos.y:
+                    # Give them the ball and stop
+                    game.ball.shoot(team, target)
+                    #self.state = "NONE"
+                    return self.player.vpos
 
             # If we're not close to the target, just keep moving towards the goal
 
-            '''
+            
             # Bit of the FSM that handles opponent player avoidance, due to the aggressive way
             # the AI plays, this is more of a hindrance than actual help
             
@@ -872,20 +873,16 @@ class MyAI:
             playerPos = self.player.vpos
             oppPos = closest_opponent.vpos
             dirToOpponent = closest_opponent.vpos - self.player.vpos
-
-            
-
-            print("(" + str(playerPos.x) + ", " + str(playerPos.y) + ") VS (" + str(oppPos.x) + ", " + str(oppPos.y) + ")")
             
             if self.player.vpos.y > closest_opponent.vpos.y:
                 dirToOpponent.y = 0
-                dirToOpoonent = normalize(dirToOpponent)
+                dirToOpponent = normalize(dirToOpponent)
             else:
                 dirToOpponent.x = 0
                 dirToOpponent.y = 0
-            '''
             
-            dirNormalized = normalize(dirToGoal)
+            dirToGoal = normalize(dirToGoal)
+            dirNormalized = normalize(dirToGoal + dirToOpponent)
             return self.player.vpos - dirNormalized * speed
 
         elif self.state is "TEAM":
@@ -897,7 +894,6 @@ class MyAI:
                 direction = -1 if self.player.team == 0 else 1
                 self.player.home.x = (ballPos.x + self.player.home.x) / 2
                 self.player.home.y = (ballPos.y + 400 * direction + self.player.home.y) / 2
-            # If we're not active, we'll do the default action of moving towards our home position
 
 # ===========================================================================================================
 # ===========================================================================================================
