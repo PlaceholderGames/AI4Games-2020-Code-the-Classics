@@ -126,46 +126,40 @@ class Bunner(MyActor):
         #for direction in range(4):
             #if key_just_pressed(direction_keys[direction]):
                # self.input_queue.append(direction)
-
                
-        move_direction = randrange(0,3) #0 - up, 1- right, 2 - down, 3 - left   random movement
-        i = 0
-        for row in game.rows:
-            i = i + 1
-            rowStrType = str(type(row)) #Gets the type of row at bunner's location
-            rowType = type(row).__name__ #Gets the name of the current row type
-            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
-                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[move_direction]:
-                    if rowType == "Water": #When the bunner is on water
-                        for child in row.children:
-                            if type(child).__name__ == "Log":
-                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid 
-                        
-                    elif rowType == "Grass": #When it reaches the grass asset
-                        for child in row.children:
-                            if type(child).__name__ == "Hedge":
-                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
-
-                    else:
-                        for child in row.children:
-                            
-                            if type(child).__name__ == "Road":
-                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
-
-                            elif type(child).__name__ == "Car":
-                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
-                                move_direction = 0
-
-                            elif type(child).__name__ == "Rail":
-                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
-                                move_direction = 0
-                   
-                   
-                        
+        current_found = False
+        next_row = None
+        current_row = None
         
-                    
+        for row in game.rows: #Goes through all rows
+            if current_found:
+                next_row = row #move onto next row
+                break
+            if row.y == self.y:
+                current_row = row
+                current_found = True
+                
+                
+        if next_row: #Looks at the next row, in front of bunner
+            suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
+            test = str(suggested_state) #checks what state bunner would be in next up move
+            #print(next_row)
+            if test == "SPLAT":
+                print("State: " + test + "Y Offset: " + str(suggested_obj_y_offset))
+                      
+            if (test.find("ALIVE") == -1): #If next move kills you, don't move
+                print("a")
+            else: #If next move doesn't kill you, move forward
+                #print("Yes")
+                if type(next_row).__name__ == "Grass": #if next row is made up of grass
+                    if next_row.collide(self.x, 0): #if bunner collides with something (hedge) with no margin
+                        self.input_queue.append(DIRECTION_RIGHT) #move to the right
+
+                self.input_queue.append(DIRECTION_UP) #move up if nothing dangerous is in front of bunner
+       
+        
         #sys.exit() #For testing purposes
-        self.input_queue.append(move_direction) #Move based on the variable 'move_direction'
+        #self.input_queue.append(move_direction) #Move based on the variable 'move_direction'
         
         #Add A* here, move away from objects
 
@@ -187,12 +181,9 @@ class Bunner(MyActor):
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
 
-            current_row = None
-            for row in game.rows:
-                if row.y == self.y:
-                    current_row = row
-                    break
-
+                
+          
+                
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
                 # (normally ALIVE, but SPLAT or SPLASH if they've collided with a vehicle or if they've fallen in
