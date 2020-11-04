@@ -147,7 +147,7 @@ class Bunner(MyActor):
             
             for row in game.rows:
                 if current_found:
-                    next_row == row
+                    next_row = row
                     # *** print('Next row.y: ' + str(row.y))
                     break
                 if row.y == self.y:
@@ -162,6 +162,10 @@ class Bunner(MyActor):
                                             
             # *** Here is where we would do a check for potential collisions, but make sure that the PlayerState is
             # *** not changed by the collision checks you might do
+
+            if next_row:  
+                suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
+                print('State: ' + str(suggested_state) + ' Y Offset: ' + str(suggested_obj_y_offset))
 
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
