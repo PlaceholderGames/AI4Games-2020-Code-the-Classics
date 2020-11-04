@@ -397,37 +397,46 @@ class Player(GravityActor):
                     self.vel_y = -16
                     self.landed = False
                     game.play_sound("jump")
-                if dx != 0:
+                if dx != 0:#Move to the direction we are facing
                     self.direction_x = dx
-                    # If we haven't just fired an orb, carry out horizontal movement
-                    if self.fire_timer < 10:
-                        self.move(dx, 0, 4)
+                    self.move(dx, 0, 4)
                         
             #Activate deffend state if a bolt is on the same line with us -38 is used to determine where the y of the bolt is as its spawns -38Y of the enemies
             #And We are alive
             if game.bolts and self.pos[1]-38 == game.bolts[0].getBoltPositionY() and game.player.lives >= 0:
-                print("BoltY "+str(game.bolts[0].getBoltPositionY())+" PlayerY "+str(self.pos[1]))
                 print("Defending")
                 self.State = PlayerStates.Deffend
             if  self.State == PlayerStates.Deffend:
                 if self.pos[0]<game.bolts[0].getBoltPositionX():#If the bolt is coming from the right fire a bublle right
                     dx = 1
-                    if self.fire_timer <= 0 and len(game.orbs) < 5:
+                    if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimy time limit has passed and there are only 5 orbs generated
                         x = min(730, max(70, self.x + self.direction_x * 38))
                         y = self.y - 35
                         self.blowing_orb = Orb((x,y), self.direction_x)
                         game.orbs.append(self.blowing_orb)
                         game.play_sound("blow", 4)
                         self.fire_timer = 20
+                    if self.blowing_orb:
+                        # Always Increase the blowing distance ove the orb to 120
+                        self.blowing_orb.blown_frames += 4
+                        if self.blowing_orb.blown_frames >= 120:
+                            # Can't be blown any further
+                            self.blowing_orb = None
                 elif self.pos[0]>game.bolts[0].getBoltPositionX():#elIf the bolt is coming from the left fire a bublle left
                     dx = -1
-                    if self.fire_timer <= 0 and len(game.orbs) < 5:
+                    if self.fire_timer <= 0 and len(game.orbs) < 5: #Check if the minimy time limit has passed and there are only 5 orbs generated
                         x = min(730, max(70, self.x + self.direction_x * 38))
                         y = self.y - 35
                         self.blowing_orb = Orb((x,y), self.direction_x)
                         game.orbs.append(self.blowing_orb)
                         game.play_sound("blow", 4)
                         self.fire_timer = 20
+                    if self.blowing_orb:
+                        # Always Increase the blowing distance ove the orb to 120
+                        self.blowing_orb.blown_frames += 4
+                        if self.blowing_orb.blown_frames >= 120:
+                            # Can't be blown any further
+                            self.blowing_orb = None
                 if dx != 0:
                     self.direction_x = dx
                     # If we haven't just fired an orb, carry out horizontal movement
