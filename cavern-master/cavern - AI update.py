@@ -18,6 +18,7 @@ if pgzero_version < [1,2]:
     print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
     sys.exit()
 
+DethConfirm=False #Boolean value used to confirm the death of the player when it enders the death state
 # Set up constants
 WIDTH = 800
 HEIGHT = 480
@@ -311,6 +312,7 @@ class Player(GravityActor):
         self.lives = 2
         self.score = 0
         self.State = PlayerStates.Collect
+        
     def reset(self):
         self.pos = (WIDTH / 2, 100)
         self.vel_y = 0
@@ -340,6 +342,7 @@ class Player(GravityActor):
             return False
 
     def update(self):
+        global DethConfirm
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
         # is zero, we want the player to just fall out of the level
         super().update(self.health > 0)
@@ -368,11 +371,12 @@ class Player(GravityActor):
             if game.player.lives < 0:
                 self.State = PlayerStates.Death
             if self.State == PlayerStates.Death:
+                DethConfirm = True
                 print("Player Entered Death State game over")
                 
             #If there are fruits to collect and we are in collect state go around collecting fruit and we are alive
             if game.fruits and self.State == PlayerStates.Collect and game.player.lives >= 0:
-                #print("Collecting")
+                print("Collecting")
                 if self.pos[0]>game.fruits[0].getFruitPositionX():#If our X position is greater than the fruits move left and we dont have an equal y as the fruit
                     dx = -1
                 elif self.pos[0]<game.fruits[0].getFruitPositionX():#If our X position is less than the fruits move right and we dont have an equal y as the fruit
@@ -393,7 +397,7 @@ class Player(GravityActor):
                             dx = -1
                         else:
                             dx = 1
-                if game.fruits[0].getFruitPositionY()<self.pos[1]and (self.pos[1]-game.fruits[0].getFruitPositionY())<25 and self.vel_y == 0 and self.landed:#If our Y position is greater than the fruit jump up to the location of the fruit
+                if game.fruits[0].getFruitPositionY()<self.pos[1]and self.vel_y == 0 and self.landed:#If our Y position is greater than the fruit jump up to the location of the fruit
                     self.vel_y = -16
                     self.landed = False
                     game.play_sound("jump")
@@ -443,37 +447,52 @@ class Player(GravityActor):
                     if self.fire_timer < 10:
                         self.move(dx, 0, 4)
                 self.State = PlayerStates.Collect#After firing return to collecting state
-
-            #if there no more fruits to collect set our state to attack in order to attack the enemies
-            #And we are alive
-            if not game.fruits and self.State == PlayerStates.Collect and game.player.lives >= 0:
+                
+            #if there no more fruits to collect we are alive and there are enemies still around set state to attack
+            if game.enemies and game.player.lives >= 0 and not game.fruits:
+                print("Attacking")
                 self.State = PlayerStates.Attack
-            else:
-                self.State = PlayerStates.Collect
-            if self.State == PlayerStates.Attack:
-            # Do we need to create a new orb? Space must have been pressed and released, the minimum time between
-            # orbs must have passed, and there is a limit of 5 orbs.
-                if space_pressed() and self.fire_timer <= 0 and len(game.orbs) < 5:
-                # x position will be 38 pixels in front of the player position, while ensuring it is within the
-                # bounds of the level
-                    x = min(730, max(70, self.x + self.direction_x * 38))
-                    y = self.y - 35
-                    self.blowing_orb = Orb((x,y), self.direction_x)
-                    game.orbs.append(self.blowing_orb)
-                    game.play_sound("blow", 4)
-                    self.fire_timer = 20
-
-                    # Holding down space causes the current orb (if there is one) to be blown further
-                if keyboard.space:
-                    if self.blowing_orb:
-                        # Increase blown distance up to a maximum of 120
-                        self.blowing_orb.blown_frames += 4
-                        if self.blowing_orb.blown_frames >= 120:
-                            # Can't be blown any further
-                            self.blowing_orb = None
-                else:
-                    # If we let go of space, we relinquish control over the current orb - it can't be blown any further
-                    self.blowing_orb = None
+                if self.State == PlayerStates.Attack:
+                    if self.pos[0]<game.enemies[0].x and self.pos[0]!=game.enemies[0].x:#Truck The enemies X
+                            dx = 1
+                    elif self.pos[0]>game.enemies[0].x and self.pos[0]!=game.enemies[0].x:#Truck the enemies X
+                            dx = -1
+                    if game.enemies[0].y  == self.pos[1]:
+                        if self.pos[0]<game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
+                            dx = 1
+                            if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimy time limit has passed and there are only 5 orbs generated
+                                x = min(730, max(70, self.x + self.direction_x * 38))
+                                y = self.y - 35
+                                self.blowing_orb = Orb((x,y), self.direction_x)
+                                game.orbs.append(self.blowing_orb)
+                                game.play_sound("blow", 4)
+                                self.fire_timer = 20
+                            if self.blowing_orb:
+                                # Always Increase the blowing distance ove the orb to 120
+                                self.blowing_orb.blown_frames += 4
+                                if self.blowing_orb.blown_frames >= 120:
+                                    # Can't be blown any further
+                                    self.blowing_orb = None
+                        elif self.pos[0]>game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
+                            dx = -1
+                            if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimum time limit has passed and there are only 5 orbs generated
+                                x = min(730, max(70, self.x + self.direction_x * 38))
+                                y = self.y - 35
+                                self.blowing_orb = Orb((x,y), self.direction_x)
+                                game.orbs.append(self.blowing_orb)
+                                game.play_sound("blow", 4)
+                                self.fire_timer = 20
+                            if self.blowing_orb:
+                                # Always Increase the blowing distance ove the orb to 120
+                                self.blowing_orb.blown_frames += 4
+                                if self.blowing_orb.blown_frames >= 120:
+                                    # Can't be blown any further
+                                    self.blowing_orb = None
+                    if dx != 0:
+                        self.direction_x = dx
+                        # If we haven't just fired an orb, carry out horizontal movement
+                        if self.fire_timer < 10:
+                            self.move(dx, 0, 4)
 
         # Set sprite image. If we're currently hurt, the sprite will flash on and off on alternate frames.
         self.image = "blank"
@@ -567,11 +586,7 @@ class Robot(GravityActor):
         else:
             image += str(1 + ((game.timer // 4) % 4))
         self.image = image
-        
-    def getEnemiePosX(self):
-        return self.EnemyPos[0]
-    def getEnemiePosY(self):
-        return self.EnemyPos[1]
+
 class Game:
     def __init__(self, player=None):
         self.player = player
@@ -795,7 +810,7 @@ class State(Enum):
 
 
 def update():
-    global state, game
+    global state, game,DethConfirm
 
     if state == State.MENU:
         if space_pressed():
@@ -806,7 +821,7 @@ def update():
             game.update()
 
     elif state == State.PLAY:
-        if game.player.lives < 0:
+        if game.player.lives < 0 and DethConfirm == True:#If our player lives are less than 0 and the death state has set DeathConfirm to True end the game
             game.play_sound("over")
             state = State.GAME_OVER
         else:
