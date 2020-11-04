@@ -119,45 +119,72 @@ class Bunner(MyActor):
                 return
 
     def update(self):
+        # MANUAL CONTROLS #
+        for jumpDirection in range(4):
+            if key_just_pressed(direction_keys[jumpDirection]):
+                self.input_queue.append(jumpDirection)
+                
+      
         jumpDirection = 0
-        i = 0
-        offset = 40
+        jumpAdditionX = Bunner.MOVE_DISTANCE * DX[jumpDirection]
+        jumpAdditionY = Bunner.MOVE_DISTANCE * DY[jumpDirection]
+        
+        logOffset = 10
+        carOffset = 60
+        trainOffset = 160
+            
+       
         for row in game.rows:
-            i += 1
-            rowType = type(row).__name__
-            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
-                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
+            rowType = type(row).__name__      
+       
+            if row.y == self.y + jumpAdditionY:
+                if row.x != self.x + jumpAdditionX:
                     if rowType == "Water":
                         for child in row.children:
-                           # print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
-                            if child.x - offset <= self.x and child.x + offset >= self.x:
+                            if child.x - logOffset <= self.x and child.x + logOffset >= self.x:
                                 print ("jump pls")
                                 jumpDirection = 0
-
+                                break
                             else:
                                 print ("dont jump")
                                 jumpDirection = randrange(1,3)
+
+                                            
                     elif rowType == "Road":
                         for child in row.children:
-                           # print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
-                            if child.x + offset <= self.x or child.x - offset >= self.x:
+                            if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
                                 print ("jump!")
                                 jumpDirection = 0
-
+                                break
                             else:
                                 print ("stop")
                                 jumpDirection = randrange(1,3)
-                                 
-                    else:
+
+                                            
+                    elif rowType == "Rail":
                         for child in row.children:
-                            if type(child).__name__ == "Hedge":
-                                #print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+                            if child.x + trainOffset <= self.x or child.x - trainOffset >= self.x:
+                                print ("cross track")
+                                jumpDirection = 0
+                            else:
+                                print ("wait for train")
                                 jumpDirection = randrange(1,3)
-                            if child.x - offset >= self.x and child.x + offset <= self.x:
-                                jumpDirection = 1
-                                print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
-                        
-        self.input_queue.append(jumpDirection)
+
+                                             
+                    elif rowType =="Grass":
+                        for child in row.children:
+                            if child.x + logOffset < self.x or child.x - logOffset > self.x:
+                                jumpDirection = randrange(1,3)
+                            else:
+                                jumpDirection = 0
+
+                                
+                    else:
+                     
+                        jumpDirection = 0
+
+                    self.input_queue.append(jumpDirection)
+
         
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
