@@ -89,9 +89,10 @@ class Bunner(MyActor):
         super().__init__("blank", pos)
 
         self.state = PlayerState.ALIVE
-
+        self.next_state = PlayerState.ALIVE
         self.direction = 2
         self.timer = 0
+        self.pos_ahead = self.y + 40
 
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
@@ -110,11 +111,10 @@ class Bunner(MyActor):
                 # (or if the new location is off the screen)
                 if row.allow_movement(self.x + Bunner.MOVE_DISTANCE * DX[dir]):
                     # It's okay to move here, so set direction and timer. Player will move one pixel per frame
-                    # for the specified number of frames
+                    # for the specified number of frames 
                     self.direction = dir
                     self.timer = Bunner.MOVE_DISTANCE
                     game.play_sound("jump", 1)
-
                 # No need to continue searching
                 return
 
@@ -122,17 +122,33 @@ class Bunner(MyActor):
         # Check each control direction
         for direction in range(4):
             # if key_just_pressed(direction_keys[direction]):
-            self.input_queue.append(randint(0, 3))
+            self.input_queue.append(0)
 
+        #for log in Water.children:
+            #if log.y == self.y + Bunner.MOVE_DISTANCE * DY[dir]:
+                #self.input_queue.append(randrange(0))
+            #return
+        
+        self.next_state = PlayerState.ALIVE
+ 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
 
-            # Are we on the ground, and are there inputs to process?
-            if self.timer == 0 and len(self.input_queue) > 0:
-                # Take the next input off the queue and process it
-                self.handle_input(self.input_queue.pop(0))
+            next_row = None
+            for row in game.rows:
+                if row.y == self.pos_ahead:
+                    next_row = row
+                    break
 
+            if next_row:
+                self.next_state, dead_obj_y_offset = next_row.check_collision(self.pos_ahead)
+                print (self.next_state)
+                if self.next_state == PlayerState.ALIVE:
+                    # Are we on the ground, and are there inputs to process?
+                    if self.timer == 0 and len(self.input_queue) > 0:
+                        # Take the next input off the queue and process it
+                        self.handle_input(self.input_queue.pop(0))
             land = False
             if self.timer > 0:
                 # Apply movement
@@ -140,7 +156,8 @@ class Bunner(MyActor):
                 self.y += DY[self.direction]
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
-
+                self.pos_ahead = self.y + 40
+                    
             current_row = None
             for row in game.rows:
                 if row.y == self.y:
@@ -286,6 +303,9 @@ class Row(MyActor):
         # – i.e. unless a subclass overrides this method, the player can walk around on a row without dying.
         return PlayerState.ALIVE, 0
 
+    def check_next_collision(self, y):
+        return PlayerState.ALIVE, 0
+    
     def allow_movement(self, x):
         # Ensure the player can't walk off the left or right sides of the screen
         return x >= 16 and x <= WIDTH-16
