@@ -3,6 +3,7 @@
 import pgzero, pgzrun, pygame, sys
 from random import *
 from enum import Enum
+from os import system
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -127,32 +128,40 @@ class Bunner(MyActor):
                # self.input_queue.append(direction)
 
                
-        move_direction = 0 #0 - up, 1- right, 2 - down, 3 - left   keep moving forward for now
+        move_direction = randrange(0,3) #0 - up, 1- right, 2 - down, 3 - left   random movement
         i = 0
-        
         for row in game.rows:
             i = i + 1
             rowStrType = str(type(row)) #Gets the type of row at bunner's location
             rowType = type(row).__name__ #Gets the name of the current row type
             if row.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
                 if row.x != self.x + Bunner.MOVE_DISTANCE * DX[move_direction]:
-                    if rowType == "Road": #When the bunner is on the road
+                    if rowType == "Water": #When the bunner is on water
                         for child in row.children:
-                            print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
-                            print(rowStrType)
-                            '''
-                            if child.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
-                                if child.x != self.x + Bunner.MOVE_DISTANCE * DX[move_direction]:
-                                    move_direction = 1
-                            else:
-                                move_direction = 1
-                            '''
-            '''
-            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[move_direction]:
-                if row.allow_movement(self.x + Bunner.MOVE_DISTANCE * DX[move_direction]):
-                    return
-              
-            '''
+                            if type(child).__name__ == "Log":
+                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid 
+                        
+                    elif rowType == "Grass": #When it reaches the grass asset
+                        for child in row.children:
+                            if type(child).__name__ == "Hedge":
+                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
+
+                    else:
+                        for child in row.children:
+                            
+                            if type(child).__name__ == "Road":
+                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
+
+                            elif type(child).__name__ == "Car":
+                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
+                                move_direction = 0
+
+                            elif type(child).__name__ == "Rail":
+                                print("row " + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")") #Print row number, the name of the child and its location on grid
+                                move_direction = 0
+                   
+                   
+                        
         
                     
         #sys.exit() #For testing purposes
@@ -205,6 +214,7 @@ class Bunner(MyActor):
                     if self.state == PlayerState.SPLAT:
                         # Add 'splat' graphic to current row with the specified position and Y offset
                         current_row.children.insert(0, MyActor("splat" + str(self.direction), (self.x, dead_obj_y_offset)))
+                        system('cls')
                     self.timer = 100
             else:
                 # There's no current row - either because player is currently changing row, or the row they were on
@@ -213,6 +223,7 @@ class Bunner(MyActor):
                     # Create eagle
                     game.eagle = Eagle((self.x, game.scroll_pos))
                     self.state = PlayerState.EAGLE
+                    system('cls')
                     self.timer = 150
                     game.play_sound("eagle")
 
