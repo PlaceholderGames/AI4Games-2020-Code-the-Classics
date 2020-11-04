@@ -175,6 +175,7 @@ class Bolt(CollideActor):
 
         self.direction_x = dir_x
         self.active = True
+        self.BoltPos=pos
 
     def update(self):
         # Move horizontally and check to see if we've collided with a block
@@ -191,7 +192,12 @@ class Bolt(CollideActor):
         direction_idx = "1" if self.direction_x > 0 else "0"
         anim_frame = str((game.timer // 4) % 2)
         self.image = "bolt" + direction_idx + anim_frame
-
+        
+    def getBoltPositionX(self):#Get Position X for Bolts
+        return self.BoltPos[0]
+    def getBoltPositionY(self):#Get Position Y for Bolts
+        return self.BoltPos[1]
+    
 class Pop(Actor):
     def __init__(self, pos, type):
         super().__init__("blank", pos)
@@ -294,6 +300,8 @@ class Fruit(GravityActor):
 class PlayerStates(Enum):#The states the player can be in
     Collect = 0
     Attack = 1
+    Deffend = 2
+    Death = 3
     
 class Player(GravityActor):
     def __init__(self):
@@ -337,7 +345,6 @@ class Player(GravityActor):
         super().update(self.health > 0)
         self.fire_timer -= 1
         self.hurt_timer -= 1
-
         if self.landed:
             # Hurt timer starts at 200, but drops to 100 once the player has landed
             self.hurt_timer = min(self.hurt_timer, 100)
@@ -357,7 +364,15 @@ class Player(GravityActor):
         else:
             # We're not hurt carry on collecting fruit
             dx = 0
+            #If the player runs out of lives or health set its state to death
+            if self.lives == 0 and self.health == 0:
+                self.State = PlayerStates.Death
+            if self.State == PlayerStates.Death:
+                print("Player Entered Death State is not dead game over")
+                
+            #If there are fruits to collect and we are in collect state go around collecting fruit
             if game.fruits and self.State == PlayerStates.Collect:
+                print("Collecting")
                 if self.pos[0]>game.fruits[0].getFruitPositionX():#If our X position is greater than the fruits move left and we dont have an equal y as the fruit
                     dx = -1
                 elif self.pos[0]<game.fruits[0].getFruitPositionX():#If our X position is less than the fruits move right and we dont have an equal y as the fruit
@@ -367,13 +382,18 @@ class Player(GravityActor):
                         dx = -1
                     elif self.pos[0]<game.fruits[0].getFruitPositionX():
                         dx = 1
-                elif self.pos[1]<game.fruits[0].getFruitPositionY()and self.pos[1]!=game.fruits[0].getFruitPositionY():#If our Y position is less than the fruit move to the direction of the fruit untill you fall down
+                elif self.pos[1]<game.fruits[0].getFruitPositionY():#If our Y position is less than the fruit move to the direction of the fruit untill you fall down
                      if game.fruits[0].getFruitPositionX()<=365:#and if the fruit is on the left side move to the left
-                        dx = -1
+                        if self.pos[0]<=70:
+                            dx = 1
+                        else:
+                            dx=-1
                      elif game.fruits[0].getFruitPositionX()>365:#and if the fruit is on the right side move to the right
-                        dx = 1
-                if self.pos[1]>game.fruits[0].getFruitPositionY() and self.vel_y == 0 and self.landed:#If our Y position is greater than the fruit jump up to the location of the fruit
-                    # Jump
+                        if self.pos[0]>=730:
+                            dx = -1
+                        else:
+                            dx = 1
+                if game.fruits[0].getFruitPositionY()<self.pos[1]and (self.pos[1]-game.fruits[0].getFruitPositionY())<25 and self.vel_y == 0 and self.landed:#If our Y position is greater than the fruit jump up to the location of the fruit
                     self.vel_y = -16
                     self.landed = False
                     game.play_sound("jump")
@@ -382,10 +402,44 @@ class Player(GravityActor):
                     # If we haven't just fired an orb, carry out horizontal movement
                     if self.fire_timer < 10:
                         self.move(dx, 0, 4)
-            elif not game.fruits and self.State == PlayerStates.Collect:#if there no more fruits to collect set our state to attack in order to attack the enemies
+                        
+            #Activate deffend state if a bolt is on the same line with us -38 is used to determine where the y of the bolt is as its spawns -38Y of the enemies        
+            if game.bolts and self.pos[1]-38 == game.bolts[0].getBoltPositionY():
+                print("BoltY "+str(game.bolts[0].getBoltPositionY())+" PlayerY "+str(self.pos[1]))
+                print("Defending")
+                self.State = PlayerStates.Deffend
+            if  self.State == PlayerStates.Deffend:
+                if self.pos[0]<game.bolts[0].getBoltPositionX():#If the bolt is coming from the right fire a bublle right
+                    dx = 1
+                    if self.fire_timer <= 0 and len(game.orbs) < 5:
+                        x = min(730, max(70, self.x + self.direction_x * 38))
+                        y = self.y - 35
+                        self.blowing_orb = Orb((x,y), self.direction_x)
+                        game.orbs.append(self.blowing_orb)
+                        game.play_sound("blow", 4)
+                        self.fire_timer = 20
+                elif self.pos[0]>game.bolts[0].getBoltPositionX():#elIf the bolt is coming from the left fire a bublle left
+                    dx = -1
+                    if self.fire_timer <= 0 and len(game.orbs) < 5:
+                        x = min(730, max(70, self.x + self.direction_x * 38))
+                        y = self.y - 35
+                        self.blowing_orb = Orb((x,y), self.direction_x)
+                        game.orbs.append(self.blowing_orb)
+                        game.play_sound("blow", 4)
+                        self.fire_timer = 20
+                if dx != 0:
+                    self.direction_x = dx
+                    # If we haven't just fired an orb, carry out horizontal movement
+                    if self.fire_timer < 10:
+                        self.move(dx, 0, 4)
+                self.State = PlayerStates.Collect#After firing return to collecting state
+
+            #if there no more fruits to collect set our state to attack in order to attack the enemies
+            if not game.fruits and self.State == PlayerStates.Collect:
                 self.State = PlayerStates.Attack
             else:
                 self.State = PlayerStates.Collect
+            if self.State == PlayerStates.Attack:
             # Do we need to create a new orb? Space must have been pressed and released, the minimum time between
             # orbs must have passed, and there is a limit of 5 orbs.
                 if space_pressed() and self.fire_timer <= 0 and len(game.orbs) < 5:
@@ -398,17 +452,17 @@ class Player(GravityActor):
                     game.play_sound("blow", 4)
                     self.fire_timer = 20
 
-        # Holding down space causes the current orb (if there is one) to be blown further
-        if keyboard.space:
-            if self.blowing_orb:
-                # Increase blown distance up to a maximum of 120
-                self.blowing_orb.blown_frames += 4
-                if self.blowing_orb.blown_frames >= 120:
-                    # Can't be blown any further
+                    # Holding down space causes the current orb (if there is one) to be blown further
+                if keyboard.space:
+                    if self.blowing_orb:
+                        # Increase blown distance up to a maximum of 120
+                        self.blowing_orb.blown_frames += 4
+                        if self.blowing_orb.blown_frames >= 120:
+                            # Can't be blown any further
+                            self.blowing_orb = None
+                else:
+                    # If we let go of space, we relinquish control over the current orb - it can't be blown any further
                     self.blowing_orb = None
-        else:
-            # If we let go of space, we relinquish control over the current orb - it can't be blown any further
-            self.blowing_orb = None
 
         # Set sprite image. If we're currently hurt, the sprite will flash on and off on alternate frames.
         self.image = "blank"
