@@ -119,24 +119,94 @@ class Bunner(MyActor):
                 return
 
     def update(self):
-        # Check each control direction
 
-        MoveDirection = randrange(0, 4)
-        I = 0
+
+        moveDirection = 0
+        current_found = False #  Putting in a flag, so we can run once more through the for loop
+        current_row = None
+        next_row = None #  We need a new variable  to store the next row data
+        rowType = type(next_row).__name__
+        currentY = None
+        PrevY = None
+
         for row in game.rows:
-            I+= 1
-            RowType = str(type (row))
+            if current_found:
+                next_row = row
+                print('Next row.y: ' + str(row.y))
+                break
+            
+            if row.y == self.y:
+                current_row = row # *** Here is where you could also set next_row to do look ahead stuff
+                current_found = True
+                print('Current row.y: ' + str(row.y))
+
+        if next_row:
+            suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
+            test = str(suggested_state)
+            if str(suggested_state) == "SPLAT":
+                    print('State: ' +str(suggested_state) + ' Y Offset: ' + str(suggested_obj_y_offset))
+
+            if (test.find("ALIVE") == -1):
+                print("NO")
+
+            else:
+                print("YES")
+                self.input_queue.append(0)
+                prevY = currentY
+                currentY = self.y
+                if rowType == "Grass":
+                    for child in next_row.children:
+                        if next_row.collide(self.x, 0):
+                            for i in range(16):
+                                self.input_queue.append(1)
+                                currentY = self.y
+                                self.input_queue.append(0)
+                                if self.y > currentY:
+                                    break
+                                
+                            if self.y == self.y and type(child).__name__ == "Hedge":
+                                for i in range(16):
+                                    self.input_queue.append(3)
+                                    currentY = self.y
+                                    self.input_queue.append(0)
+                                    if self.y > currentY:
+                                        break
+                          
+
+        
+
+            
+
+
+
+    
+       # i = 0
+       # for row in game.rows:
+           # i = i + 1
+           # RowStrType = str(type (row))
+           # RowType = type(row).__name__
+          #  if row.y == self.y + Bunner.MOVE_DISTANCE * DY[MoveDirection]:
+               # if row.x != self.x + Bunner.MOVE_DISTANCE * DX[MoveDirection]:
+                   # if RowType == "Water":
+                       # for child in row.children:
+                           # if type(child).__name__ == "Log":
+                               # print("row" + str(i) + ":" + type(child).__name__ + "(" + str(child.x) + ", " + str(child.y) + ")")
+
+           
             #print ("row "+str(I)+":"+RowType)
            # for theboy in row.children:
             #    print ("row "+str(I)+":"+str (type(theboy)))
           
-            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[MoveDirection]:
-                if row.allow_movement(self.x + Bunner.MOVE_DISTANCE * DX[MoveDirection]) is False:
-                    return
+            #if row.y == self.y + Bunner.MOVE_DISTANCE * DY[MoveDirection]:
+                #if row.allow_movement(self.x + Bunner.MOVE_DISTANCE * DX[MoveDirection]) is False:
+                    #return
+
+        #if next_row: suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
+        #print('State: ' + str(suggested_state) + ' Y Offset: ' + str(suggested_obj_y_offset))
  
         
         #sys.exit()
-        self.input_queue.append(MoveDirection)
+       
 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
