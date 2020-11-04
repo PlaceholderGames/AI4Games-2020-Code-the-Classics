@@ -365,14 +365,14 @@ class Player(GravityActor):
             # We're not hurt carry on collecting fruit
             dx = 0
             #If the player runs out of lives or health set its state to death
-            if self.lives == 0 and self.health == 0:
+            if game.player.lives < 0:
                 self.State = PlayerStates.Death
             if self.State == PlayerStates.Death:
-                print("Player Entered Death State is not dead game over")
+                print("Player Entered Death State game over")
                 
-            #If there are fruits to collect and we are in collect state go around collecting fruit
-            if game.fruits and self.State == PlayerStates.Collect:
-                print("Collecting")
+            #If there are fruits to collect and we are in collect state go around collecting fruit and we are alive
+            if game.fruits and self.State == PlayerStates.Collect and game.player.lives >= 0:
+                #print("Collecting")
                 if self.pos[0]>game.fruits[0].getFruitPositionX():#If our X position is greater than the fruits move left and we dont have an equal y as the fruit
                     dx = -1
                 elif self.pos[0]<game.fruits[0].getFruitPositionX():#If our X position is less than the fruits move right and we dont have an equal y as the fruit
@@ -403,8 +403,9 @@ class Player(GravityActor):
                     if self.fire_timer < 10:
                         self.move(dx, 0, 4)
                         
-            #Activate deffend state if a bolt is on the same line with us -38 is used to determine where the y of the bolt is as its spawns -38Y of the enemies        
-            if game.bolts and self.pos[1]-38 == game.bolts[0].getBoltPositionY():
+            #Activate deffend state if a bolt is on the same line with us -38 is used to determine where the y of the bolt is as its spawns -38Y of the enemies
+            #And We are alive
+            if game.bolts and self.pos[1]-38 == game.bolts[0].getBoltPositionY() and game.player.lives >= 0:
                 print("BoltY "+str(game.bolts[0].getBoltPositionY())+" PlayerY "+str(self.pos[1]))
                 print("Defending")
                 self.State = PlayerStates.Deffend
@@ -435,7 +436,8 @@ class Player(GravityActor):
                 self.State = PlayerStates.Collect#After firing return to collecting state
 
             #if there no more fruits to collect set our state to attack in order to attack the enemies
-            if not game.fruits and self.State == PlayerStates.Collect:
+            #And we are alive
+            if not game.fruits and self.State == PlayerStates.Collect and game.player.lives >= 0:
                 self.State = PlayerStates.Attack
             else:
                 self.State = PlayerStates.Collect
