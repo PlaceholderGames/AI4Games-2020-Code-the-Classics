@@ -1,6 +1,6 @@
 # If the window is too tall to fit on the screen, check your operating system display settings and reduce display
 # scaling if it is enabled.
-import pgzero, pgzrun, pygame, sys
+import pgzero, pgzrun, pygame, sys, random
 from random import *
 from enum import Enum
 
@@ -23,6 +23,8 @@ if pgzero_version < [1,2]:
 WIDTH = 480 
 HEIGHT = 800
 TITLE = "Infinite Bunner"
+
+checkType = False
 
 ROW_HEIGHT = 40
 
@@ -47,6 +49,8 @@ class MyActor(Actor):
 
         self.x -= offset_x
         self.y -= offset_y
+
+        self.controllerInput = 0
 
     def update(self):
         for child_obj in self.children:
@@ -82,6 +86,7 @@ direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 DX = [0,4,0,-4]
 DY = [-4,0,4,0]
 
+# !!!
 class Bunner(MyActor):
     MOVE_DISTANCE = 10
 
@@ -92,6 +97,8 @@ class Bunner(MyActor):
 
         self.direction = 2
         self.timer = 0
+
+        self.currentRow = -1
 
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
@@ -117,7 +124,8 @@ class Bunner(MyActor):
 
                 # No need to continue searching
                 return
-
+            
+# !!!
     def update(self):
         # Check each control direction
         for direction in range(4):
@@ -146,7 +154,128 @@ class Bunner(MyActor):
                 if row.y == self.y:
                     current_row = row
                     break
+            #print('Next row.y: ' + str(row.y))
 
+# AI !!!!
+##            current_found = False           # *** Putting in a flag, so we can run once more through the for loop
+##            next_row = None                 # *** We need a new variable :-) to store the next row data
+##            #print('Next row.y: ' + str(row.y))
+##
+##            if current_row.index == 0:
+##            
+##                #current_row.check_collision(self.x)
+##                
+##                self.input_queue.append(DIRECTION_RIGHT)
+##                print("RIGHT")
+
+            #print(str(current_row.index))
+
+
+##            row0 = -320
+##            row1 = row0 - 40
+##
+##            allRows = [-320, -360, 400, ]
+##
+##            self.currentRow += 1
+##
+##            game.rows.child_obj
+##            print(str(game.rows.child_obj))
+
+
+            rowType = type(row).__name__
+            child = None
+
+            self.controllerInput = self.controllerInput + 1
+            
+            
+
+            current_found = False # *** Putting in a flag, so we can run once more through the for loop
+            next_row = None # *** We need a new variable :-) to store the next row data
+
+
+            for row in game.rows:
+                if current_found:
+                    next_row == row
+                   
+                if row.y == self.y:
+                    current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
+                    current_found = True
+                    if rowType == "Grass":
+                    print ("UP x " + str(self.controllerInput))
+                    self.input_queue.append(DIRECTION_UP)
+                    # *** print('Next row.y: ' + str(row.y))
+                    break
+                    # *** print('Current row.y: ' + str(row.y))
+
+                    
+##            if row in game.rows:
+##                if rowType == "Grass":
+##                    print ("UP x " + str(self.controllerInput))
+##                    self.input_queue.append(DIRECTION_UP)
+##                    if child in row.children:
+##                        if type(child).__name__ == "Hedge":
+##                            print ("HEDGE")
+##                            self.input_queue.append(DIRECTION_LEFT)
+
+                    
+##                            for child in row.children:
+##                                if child.x - offset <= self.x and child.x + offset >= self.x:
+##                                    print ("DO SOMETHING")
+
+            #print(rows.children)
+##            current_found = False # *** Putting in a flag, so we can run once more through the for loop
+##            next_row = None # *** We need a new variable :-) to store the next row data
+##
+##            for row in game.rows:
+##                if current_found == True:
+##                    next_row == row
+##                    print('Next row.y: ' + str(row.y))
+##                    break
+##            if row.y == self.y:
+##                current_row = row # *** Here is where you could also set next_row to do look ahead stuff
+##                current_found = True
+##                print('Current row.y: ' + str(row.y))
+
+##            test = str(type (game.rows[0]))
+##
+##            if (test.find("Grass") == -1): 
+##                print("NO")
+##                checkType = False
+##		
+##            else: 
+##                print("YES")
+##                checkType = True
+##                if (self.y == allRows[0]):
+##                    self.input_queue.append(DIRECTION_UP)
+##
+##            if (test.find("Road") == -1): 
+##                print("NO")
+##                checkType = False
+##                        
+##            else: 
+##                print("YES")
+##                checkType = True
+##                if (self.y == allRows[0]):
+##                    self.input_queue.append(DIRECTION_UP)
+                    
+
+            #df = type(game.rows[0])
+            #print (str(df) )
+
+##            for row in game.rows:
+####                if current_found == True:
+####                    next_row == row
+####                    print('Next row.y: ' + str(row.y))
+####                    break
+####                if row.y == self.y:
+####                    current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
+####                    current_found = True
+####                    print('Current row.y: ' + str(row.y))
+##                  if row.y
+##                      current_row.check_collision(self.x)
+
+                      
+            
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
                 # (normally ALIVE, but SPLAT or SPLASH if they've collided with a vehicle or if they've fallen in
@@ -156,7 +285,7 @@ class Bunner(MyActor):
                 # check_collision is a Y offset which affects the position of this new child object. If the player is
                 # hit by a car the Y offset is zero, but if they are hit by a train the returned offset is 8 as this
                 # positioning looks a little better.
-                self.state, dead_obj_y_offset = current_row.check_collision(self.x)
+                self.state, dead_obj_y_offset = current_row.check_collision(self.x)# *** current_row is of class Row
                 if self.state == PlayerState.ALIVE:
                     # Water rows move the player along the X axis, if standing on a log
                     self.x += current_row.push()
@@ -186,6 +315,56 @@ class Bunner(MyActor):
             # Not alive - timer now counts down prior to game over screen
             self.timer -= 1
 
+# AI STARTS
+##        bunwait = None
+##        waitInt = randint (1, 30)
+##        
+##        if waitInt > 1:
+##            bunwait = True
+##
+##        if waitInt == 1:
+##            bunwait = False
+##        
+##        RandomInt = randint(1, 4)  
+##
+##        if RandomInt == 1 and bunwait == False:       
+##            self.input_queue.append(DIRECTION_UP)
+##            print("UP")
+##            
+##        if RandomInt == 2 and bunwait == False:       
+##            self.input_queue.append(DIRECTION_RIGHT)
+##            print("RIGHT")
+##
+##        #if RandomInt == 3 and bunwait == False:       
+##            #self.input_queue.append(DIRECTION_DOWN)
+##            #print("DOWN")
+##
+##        if RandomInt == 4 and bunwait == False:       
+##            self.input_queue.append(DIRECTION_LEFT)
+##            print("LEFT")
+
+##        if self.y < -10:      
+##            self.input_queue.append(DIRECTION_UP)
+##            print("UP")
+
+        #new_row =  in self.rows
+
+##        child_obj = None  
+##        child_obj = isinstance(child_obj, Car)
+##        positionAhead = self.y - 40
+##   
+##        if self.y >= positionAhead:
+##            self.input_queue.append(DIRECTION_UP)
+##            print("UP")
+            
+##        print("x = ", self.x)
+##        print("y = ", self.y)
+##        print(positionAhead)
+                
+
+
+
+        
         # Keep track of the furthest we've got in the level
         self.min_y = min(self.min_y, self.y)
 
@@ -733,6 +912,7 @@ class Game:
                 if obj and isinstance(obj, Row):
                     pygame.draw.rect(screen.surface, (255, 255, 255), pygame.Rect(obj.x, obj.y - int(self.scroll_pos), screen.surface.get_width(), ROW_HEIGHT), 1)
                     screen.draw.text(str(obj.index), (obj.x, obj.y - int(self.scroll_pos) - ROW_HEIGHT))
+                       
 
     def score(self):
         return int(-320 - game.bunner.min_y) // 40
@@ -791,6 +971,7 @@ key_status = {}
 
 # Was the given key just pressed? (i.e. is it currently down, but wasn't down on the previous frame?)
 def key_just_pressed(key):
+    
     result = False
 
     # Get key's previous status from the key_status dictionary. The dictionary.get method allows us to check for a given
@@ -801,7 +982,7 @@ def key_just_pressed(key):
     # If the key wasn't previously being pressed, but it is now, we're going to return True
     if not prev_status and keyboard[key]:
         result = True
-
+        
     # Before we return, we need to update the key's entry in the key_status dictionary (or create an entry if there
     # wasn't one already
     key_status[key] = keyboard[key]
@@ -851,11 +1032,27 @@ def update():
             game.update()
 
     elif state == State.GAME_OVER:
+
         # Switch to menu state, and create a new game object without a player
+        
         if key_just_pressed(keys.SPACE):
             game.stop_looped_sounds()
             state = State.MENU
             game = Game()
+
+# !!!
+#def ai():
+    #key_ai(keys.SPACE)
+# function to check if small string is 
+# there in big string
+
+def check(string, sub_str): 
+	if (string.find(sub_str) == -1): 
+		print("NO")
+		checkType = False
+	else: 
+		print("YES")
+		checkType = True
 
 def draw():
     game.draw()
@@ -872,6 +1069,7 @@ def draw():
     elif state == State.GAME_OVER:
         # Display "Game Over" image
         screen.blit("gameover", (0, 0))
+
 
 # Set up sound system
 try:
