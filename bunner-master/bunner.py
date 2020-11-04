@@ -121,30 +121,57 @@ class Bunner(MyActor):
     def update(self):
         # Check each control direction
         jumpDirection = 0
+        Current_Found = 0
+        Current_Row = None
+        Next_Row = None
+        Current_Y = None
+        Prev_Y = None
         i = 0
         offset = 80
+
+
         for row in game.rows:
-            i += 1
-            rowType = type(row).__name__
-            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
-                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
-                    if rowType == "Water":
-                        for child in row.children:
-                           # print ("row " + str(i)+ "+ "+ type(child).name+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
-                            if child.x - offset <= self.x and child.x + offset >= self.x:
-                                print ("jump pls")
-                                jumpDirection = 0
-                            else:
-                                print ("dont jump")
-                                jumpDirection = randrange(1,3) 
-                    else:
-                        for child in row.children:
-                            if type(child).__name__ == "Hedge":
-                                #print ("row " + str(i)+ "+ "+ type(child).name+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
-                                jumpDirection = randrange(1,3)
-                            if child.x - offset >= self.x and child.x + offset <= self.x:
-                                jumpDirection = 1
-                                print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+            if Current_Found:
+                Next_Row = row
+                break
+            if row.y == self.y:
+                Current_Row = row
+                Current_Found = True
+
+
+        if Next_Row:
+            NextState = Next_Row.check_collision(self.x)
+            print(NextState)
+            PlayerNextState = str(NextState)
+            if str(NextState) == "SPLAT":
+                print(NextState)
+
+            if(PlayerNextState.find("ALIVE") == -1):
+                print("Bunny Dead")
+
+            else:
+                ##rowType = type(Next_Row)
+                i += 1
+                rowType = type(row).__name__
+                if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
+                    if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
+                        if rowType == "Water":
+                            for child in row.children:
+                               # print ("row " + str(i)+ "+ "+ type(child).name+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
+                                if child.x - offset <= self.x and child.x + offset >= self.x:
+                                    print ("jump pls")
+                                    jumpDirection = 0
+                                else:
+                                    print ("dont jump")
+                                    jumpDirection = randrange(1,3) 
+                        else:
+                            for child in row.children:
+                                if type(child).__name__ == "Hedge":
+                                    #print ("row " + str(i)+ "+ "+ type(child).name+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+                                    jumpDirection = randrange(1,3)
+                                if child.x - offset >= self.x and child.x + offset <= self.x:
+                                    jumpDirection = 1
+                                    print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
 
         self.input_queue.append(jumpDirection)
 
