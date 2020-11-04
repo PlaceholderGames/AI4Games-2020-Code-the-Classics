@@ -192,20 +192,56 @@ class Bunner(MyActor):
             current_found = False # *** Putting in a flag, so we can run once more through the for loop
             next_row = None # *** We need a new variable :-) to store the next row data
 
-
             for row in game.rows:
                 if current_found:
-                    next_row == row
-                   
+                    next_row = row
+                    # *** print('Next row.y: ' + str(row.y))
+                    break
                 if row.y == self.y:
                     current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
                     current_found = True
-                    if rowType == "Grass":
-                    print ("UP x " + str(self.controllerInput))
-                    self.input_queue.append(DIRECTION_UP)
-                    # *** print('Next row.y: ' + str(row.y))
-                    break
                     # *** print('Current row.y: ' + str(row.y))
+                
+            # *** print(self.y)             # *** This gives the absolute y coordinate of the row Bunner is in,
+                                            # *** starting at -320 and going up in decrements of 40; so the next row
+                                            # *** up is -360. So, why start at -320? because y=0 is the bottom row
+                                            # *** of the starting play area on screen.
+                                            
+            # *** Here is where we would do a check for potential collisions, but make sure that the PlayerState is
+            # *** not changed by the collision checks you might do
+
+
+            
+            if next_row:
+                suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
+
+                test = str(suggested_state)
+                
+                if str(suggested_state) == "SPLAT":
+                    print('State: ' + str(suggested_state) + ' Y Offset: ' + str(suggested_obj_y_offset))
+
+                if (test.find("ALIVE") == -1): 
+                    print("NO")
+		
+                else: 
+                    print("YES")
+                    self.input_queue.append(DIRECTION_UP)
+                    print(test)
+
+                    
+##            for row in game.rows:
+##                if current_found:
+##                    next_row == row
+##                   
+##                if row.y == self.y:
+##                    current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
+##                    current_found = True
+##                    if rowType == "Grass":
+##                        print ("UP x " + str(self.controllerInput))
+##                        self.input_queue.append(DIRECTION_UP)
+##                        # *** print('Next row.y: ' + str(row.y))
+##                        break
+##                        # *** print('Current row.y: ' + str(row.y))
 
                     
 ##            if row in game.rows:
