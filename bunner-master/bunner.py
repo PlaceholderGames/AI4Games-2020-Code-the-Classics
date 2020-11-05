@@ -132,7 +132,7 @@ class Bunner(MyActor):
         logOffset = 10
         carOffset = 60
         trainOffset = 160
-            
+        moveBool = False    
        
         for row in game.rows:
             rowType = type(row).__name__      
@@ -148,6 +148,7 @@ class Bunner(MyActor):
                             else:
                                 print ("dont jump")
                                 jumpDirection = randrange(1,3)
+                                
 
                                             
                     elif rowType == "Road":
@@ -155,10 +156,12 @@ class Bunner(MyActor):
                             if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
                                 print ("jump!")
                                 jumpDirection = 0
+                              
                                 break
                             else:
                                 print ("stop")
                                 jumpDirection = randrange(1,3)
+                               
 
                                             
                     elif rowType == "Rail":
@@ -166,24 +169,32 @@ class Bunner(MyActor):
                             if child.x + trainOffset <= self.x or child.x - trainOffset >= self.x:
                                 print ("cross track")
                                 jumpDirection = 0
+                                
+                              
                             else:
                                 print ("wait for train")
                                 jumpDirection = randrange(1,3)
+                              
 
                                              
                     elif rowType =="Grass":
                         for child in row.children:
-                            if child.x + logOffset < self.x or child.x - logOffset > self.x:
+                            if child.x == self.x:
                                 jumpDirection = randrange(1,3)
+                               
                             else:
                                 jumpDirection = 0
+                                
 
                                 
                     else:
                      
                         jumpDirection = 0
-
-                    self.input_queue.append(jumpDirection)
+                        
+                self.input_queue.append(jumpDirection)  
+        
+            
+            
 
         
         if self.state == PlayerState.ALIVE:
