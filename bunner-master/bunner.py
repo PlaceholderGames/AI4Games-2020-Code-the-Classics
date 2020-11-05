@@ -3,6 +3,7 @@
 import pgzero, pgzrun, pygame, sys, time
 from random import *
 from enum import Enum
+from os import system
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -119,48 +120,138 @@ class Bunner(MyActor):
                 return
 
     def update(self):
+        jumpDirection = 0
+        current_found = False
+        current_row=None
+        next_row = None
+        currentY = 0
+        PrevY = 0
+        offset = 40
+        behindHedge = False
+        alive = True
+
+        for row in game.rows:
+            if current_found:
+                next_row = row
+                break
+            if row.y==self.y:
+                current_row = row
+                current_found = True       
+
+        if alive == True:
+            if next_row:
+                NextState = next_row.check_collision(self.x)
+                #print(NextState)
+                PlayerNextState = str(NextState)
+                if str(NextState) == "SPLAT":
+                    print(NextState)
+                    
+                if(PlayerNextState.find("ALIVE") == -1):
+                    print("this bunny dead")
+                    alive = False
+                    
+                else:
+                    rowType = type(next_row).__name__
+                    #prevY = currentY
+                    #currentY = self.y
+                    #print("self.y: " + str(self.y))
+                    #print(prevY)
+                    self.input_queue.append(0)
+                    prevY = currentY #yout see this yea? 
+                    currentY = self.y
+                    behindHedge
+                    if rowType == "Grass":
+                        for child in next_row.children:
+                            if next_row.collide(self.x, 20):
+                                
+                                if behindHedge == True:
+
+                                    for i in range(16):
+                                        print(currentY)
+                                        prevY = (currentY+40)
+                                        print(prevY)
+                                        #print("here")
+                                        self.input_queue.append(1)
+                                        self.input_queue.append(0)
+                                        if currentY>prevY:
+                                            print("here")
+                                            behindHedge = False
+                                            break
+                                            
+                                    else:
+                                        for i in range(16):
+                                            prevY = (currentY+40)
+                                            #print("here")
+                                            self.input_queue.append(3)
+                                            self.input_queue.append(0)
+                                            if currentY>prevY:
+                                                print("here")
+                                                behindHedge = False
+                                                break
+                                        break
+                
+                
+                
+
+
         # Check each control direction
        # for direction in range(4):
-        jumpDirection = 0
-        i = 0
-        offset = 100
-        for row in game.rows:
-            i += 1
-            rowType = type(row).__name__
-            if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
-                if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
-                    if rowType == "Water":
-                        for child in row.children:
-                            if child.x - offset <= self.x and child.x + offset >= self.x:
-                                print ("JUMP")
-                                jumpDirection = 0
-                                #break
-                                time.sleep(0.5)
-                            else:
-                                print ("DO NOT JUMP")
-                                jumpDirection = randrange(1,3)
-                                if jumpDirection == 2:
-                                    jumpDirection = randrange(1,3)
-                    elif rowType == "Grass":
-                        for child in row.children:
-                            if type(child).__name__ == "Hedge":
-                                jumpDirection = randrange(1,3)
-                                if jumpDirection == 2:
-                                    jumpDirection = randrange(1,3)
-                            if child.x - offset >= self.x and child.x + offset <= self.x:
-                                jumpDirection = 1
-                                print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
-                    else:
-                        for child in row.children:
-                            if type(child).__name__ == "Road":
-                                jumpDirection = randrange(1,3)
-                                if jumpDirection == 2:
-                                    jumpDirection = randrange(1,3)
-                            if child.x + offset >= self.x and child.x - offset >= self.x:
-                                jumpDirection = 1
-                          
-
-        self.input_queue.append(jumpDirection)  
+      
+#        i = 0
+ #       offset = 40
+  #      for row in game.rows:                     
+   #         i += 1
+    #        rowType = type(row).__name__
+     #       if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
+      #          if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
+       #             if rowType == "Water":
+        #                for child in row.children:
+         #                   if child.x - offset == self.x and child.x + offset == self.x:
+          #                      print ("JUMP")
+           #                     self.input_queue.append(0)
+            #                    #jumpDirection = 0
+             #                   break
+              #                  #time.sleep(0.5)
+               #             else:
+                #                print ("DO NOT JUMP")
+                 #               self.input_queue.append(3)
+                                #jumpDirection = randrange(1,4)
+                                #print(jumpDirection)
+                                #time.sleep(0.05)
+                                #if jumpDirection == 2:
+                                    #jumpDirection = randrange(1,4)
+                                    #print (jumpDirection)
+                                    #time.sleep(0.05)
+#                    elif rowType == "Grass":
+ #                       for child in row.children:
+  #                          if type(child).__name__ == "Hedge":
+#
+ #                               jumpDirection = randrange(1)
+  #                              #print (jumpDirection)
+   #                             #time.sleep(0.05)
+    #                            if jumpDirection == 2:
+     #                               jumpDirection = randrange(1,4)
+      #                              #print (jumpDirection)
+       #                             #time.sleep(0.05)
+        #                    if child.x - offset >= self.x and child.x + offset <= self.x:
+         #                       jumpDirection = 1
+          #                      #print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
+           #         else:
+            #            for child in row.children:
+             #               if type(child).__name__ == "Road":
+              #                  jumpDirection = randrange(1,4)
+               #                 #print (jumpDirection)
+                #                #time.sleep(0.05)
+                 #               if jumpDirection == 2:
+                  #                  jumpDirection = randrange(1,4)
+                   #                 #print (jumpDirection)
+                                    #time.sleep(0.05)
+                    #        if child.x + offset >= self.x and child.x - offset >= self.x:
+                     #           jumpDirection = randrange(1,4)
+                  #  print (jumpDirection)
+                   # time.sleep(1)      
+                
+        #self.input_queue.append(jumpDirection)  
 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
@@ -207,6 +298,7 @@ class Bunner(MyActor):
                         # Add 'splat' graphic to current row with the specified position and Y offset
                         current_row.children.insert(0, MyActor("splat" + str(self.direction), (self.x, dead_obj_y_offset)))
                     self.timer = 100
+    
             else:
                 # There's no current row - either because player is currently changing row, or the row they were on
                 # has been deleted. Has the player gone off the bottom of the screen?
