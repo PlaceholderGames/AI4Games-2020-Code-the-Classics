@@ -176,7 +176,6 @@ class Bolt(CollideActor):
 
         self.direction_x = dir_x
         self.active = True
-        self.BoltPos=pos
 
     def update(self):
         # Move horizontally and check to see if we've collided with a block
@@ -193,12 +192,7 @@ class Bolt(CollideActor):
         direction_idx = "1" if self.direction_x > 0 else "0"
         anim_frame = str((game.timer // 4) % 2)
         self.image = "bolt" + direction_idx + anim_frame
-        
-    def getBoltPositionX(self):#Get Position X for Bolts
-        return self.BoltPos[0]
-    def getBoltPositionY(self):#Get Position Y for Bolts
-        return self.BoltPos[1]
-    
+
 class Pop(Actor):
     def __init__(self, pos, type):
         super().__init__("blank", pos)
@@ -252,7 +246,6 @@ class Fruit(GravityActor):
 
     def __init__(self, pos, trapped_enemy_type=0):
         super().__init__(pos)
-        self.FruitPos=pos
         # Choose which type of fruit we're going to be.
         if trapped_enemy_type == Robot.TYPE_NORMAL:
             self.type = choice([Fruit.APPLE, Fruit.RASPBERRY, Fruit.LEMON])
@@ -293,11 +286,7 @@ class Fruit(GravityActor):
 
         anim_frame = str([0, 1, 2, 1][(game.timer // 6) % 4])
         self.image = "fruit" + str(self.type) + anim_frame
-    def getFruitPositionX(self):#Get Position X for Fruit
-        return self.FruitPos[0]
-    def getFruitPositionY(self):#Get Position Y for Fruit
-        return self.FruitPos[1]
-    
+
 class PlayerStates(Enum):#The states the player can be in
     Collect = 0
     Attack = 1
@@ -312,7 +301,7 @@ class Player(GravityActor):
         self.lives = 2
         self.score = 0
         self.State = PlayerStates.Collect
-        
+        self.Change = False
     def reset(self):
         self.pos = (WIDTH / 2, 100)
         self.vel_y = 0
@@ -376,42 +365,53 @@ class Player(GravityActor):
                 
             #If there are fruits to collect and we are in collect state go around collecting fruit and we are alive
             if game.fruits and self.State == PlayerStates.Collect and game.player.lives >= 0:
-                print("Collecting")
-                if self.pos[0]>game.fruits[0].getFruitPositionX():#If our X position is greater than the fruits move left and we dont have an equal y as the fruit
-                    dx = -1
-                elif self.pos[0]<game.fruits[0].getFruitPositionX():#If our X position is less than the fruits move right and we dont have an equal y as the fruit
-                    dx = 1
-                if self.pos[1]==game.fruits[0].getFruitPositionY():#If our Y position is the same as the fruits move left or right untill you reach the fruit
-                    if self.pos[0]>game.fruits[0].getFruitPositionX():
+                #print("Collecting")
+                if self.x>game.fruits[0].x:
                         dx = -1
-                    elif self.pos[0]<game.fruits[0].getFruitPositionX():
+                elif self.x<game.fruits[0].x:
                         dx = 1
-                elif self.pos[1]<game.fruits[0].getFruitPositionY():#If our Y position is less than the fruit move to the direction of the fruit untill you fall down
-                     if game.fruits[0].getFruitPositionX()<=365:#and if the fruit is on the left side move to the left
-                        if self.pos[0]<=70:
-                            dx = 1
-                        else:
-                            dx=-1
-                     elif game.fruits[0].getFruitPositionX()>365:#and if the fruit is on the right side move to the right
-                        if self.pos[0]>=730:
-                            dx = -1
-                        else:
-                            dx = 1
-                if game.fruits[0].getFruitPositionY()<self.pos[1]and self.vel_y == 0 and self.landed:#If our Y position is greater than the fruit jump up to the location of the fruit
-                    self.vel_y = -16
-                    self.landed = False
-                    game.play_sound("jump")
+                if self.y==game.fruits[0].y:#If our Y position is the same as the fruits move left or right untill you reach the fruit
+                    if self.x>game.fruits[0].x:
+                        dx = -1
+                    elif self.x<game.fruits[0].x:
+                        dx = 1
+                elif self.y<game.fruits[0].y:#If our Y position is less than the fruit move to the direction of the fruit untill you fall down
+                    if self.x <= 70:#If we hit the left wass set self.Change to true so we change our direction to right
+                        self.Change = True
+                    if self.Change == True:
+                        dx = 1
+                    else:
+                        dx = -1
+                    if self.x>=730:#If we hit the left wass set self.Change to false so we change our direction to left
+                        self.Change = False
+                    if self.Change == False:
+                        dx = -1
+                    else:
+                        dx = 1
+                elif self.y>game.fruits[0].y:#If our Y is greater than the fruits move into a direction untill we fall through the level holes so it becomes the same
+                     if self.x <= 70:#If we hit the left wass set self.Change to true so we change our direction to right
+                        self.Change = True
+                     if self.Change == True:
+                        dx = 1
+                     else:
+                        dx = -1
+                     if self.x>=730:#If we hit the left wass set self.Change to false so we change our direction to left
+                        self.Change = False
+                     if self.Change == False:
+                        dx = -1
+                     else:
+                        dx = 1
                 if dx != 0:#Move to the direction we are facing
                     self.direction_x = dx
                     self.move(dx, 0, 4)
                         
             #Activate deffend state if a bolt is on the same line with us -38 is used to determine where the y of the bolt is as its spawns -38Y of the enemies
             #And We are alive
-            if game.bolts and self.pos[1]-38 == game.bolts[0].getBoltPositionY() and game.player.lives >= 0:
-                print("Defending")
+            if game.bolts and self.y-38 == game.bolts[0].y and game.player.lives >= 0:
+                #print("Defending")
                 self.State = PlayerStates.Deffend
             if  self.State == PlayerStates.Deffend:
-                if self.pos[0]<game.bolts[0].getBoltPositionX():#If the bolt is coming from the right fire a bublle right
+                if self.x<game.bolts[0].x:#If the bolt is coming from the right fire a bublle right
                     dx = 1
                     if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimy time limit has passed and there are only 5 orbs generated
                         x = min(730, max(70, self.x + self.direction_x * 38))
@@ -426,7 +426,7 @@ class Player(GravityActor):
                         if self.blowing_orb.blown_frames >= 120:
                             # Can't be blown any further
                             self.blowing_orb = None
-                elif self.pos[0]>game.bolts[0].getBoltPositionX():#elIf the bolt is coming from the left fire a bublle left
+                elif self.x>game.bolts[0].x:#elIf the bolt is coming from the left fire a bublle left
                     dx = -1
                     if self.fire_timer <= 0 and len(game.orbs) < 5: #Check if the minimy time limit has passed and there are only 5 orbs generated
                         x = min(730, max(70, self.x + self.direction_x * 38))
@@ -450,14 +450,17 @@ class Player(GravityActor):
                 
             #if there no more fruits to collect we are alive and there are enemies still around set state to attack
             if game.enemies and game.player.lives >= 0 and not game.fruits:
-                print("Attacking")
-                self.State = PlayerStates.Attack
+                if game.fruits:#In case there are fruits that have spawned in return to collecting it
+                     self.State = PlayerStates.Collect
+                else:
+                    print("Attacking")
+                    self.State = PlayerStates.Attack
                 if self.State == PlayerStates.Attack:
-                    if self.pos[0]<game.enemies[0].x and self.pos[0]!=game.enemies[0].x:#Truck The enemies X
+                    if self.x<game.enemies[0].x and self.x!=game.enemies[0].x:#Truck The enemies X
                             dx = 1
-                    elif self.pos[0]>game.enemies[0].x and self.pos[0]!=game.enemies[0].x:#Truck the enemies X
+                    elif self.x>game.enemies[0].x and self.x!=game.enemies[0].x:#Truck the enemies X
                             dx = -1
-                    if game.enemies[0].y  == self.pos[1]:
+                    if game.enemies[0].y  == self.y:
                         if self.pos[0]<game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
                             dx = 1
                             if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimy time limit has passed and there are only 5 orbs generated
@@ -473,7 +476,7 @@ class Player(GravityActor):
                                 if self.blowing_orb.blown_frames >= 120:
                                     # Can't be blown any further
                                     self.blowing_orb = None
-                        elif self.pos[0]>game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
+                        elif self.x>game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
                             dx = -1
                             if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimum time limit has passed and there are only 5 orbs generated
                                 x = min(730, max(70, self.x + self.direction_x * 38))
@@ -862,8 +865,8 @@ try:
     pygame.mixer.quit()
     pygame.mixer.init(44100, -16, 2, 1024)
 
-    music.play("theme")
-    music.set_volume(0.3)
+##    music.play("theme")
+##    music.set_volume(0.3)
 except:
     # If an error occurs, just ignore it
     pass
