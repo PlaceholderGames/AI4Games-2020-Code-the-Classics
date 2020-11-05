@@ -1,6 +1,7 @@
 # If the window is too tall to fit on the screen, check your operating system display settings and reduce display
 # scaling if it is enabled.
 import pgzero, pgzrun, pygame, sys
+import random
 from random import *
 from enum import Enum
 from os import system
@@ -76,7 +77,8 @@ DIRECTION_DOWN = 2
 DIRECTION_LEFT = 3
 
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
-
+randomMove_list = [0, 1, 3] #AI picks random direction when moving
+reachedRight = False
 # X and Y directions indexed into by in_edge and out_edge in Segment
 # The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = down, 3 = left
 # Numbers 0 to 3 correspond to up, right, down, left
@@ -90,7 +92,8 @@ class Bunner(MyActor):
         super().__init__("blank", pos)
 
         self.state = PlayerState.ALIVE
-
+        self.reachedRight = False
+        self.reachedLeft = False
         self.direction = 2
         self.timer = 0
 
@@ -130,6 +133,8 @@ class Bunner(MyActor):
         current_found = False
         next_row = None
         current_row = None
+        move = False
+        move_direction = 0
         
         for row in game.rows: #Goes through all rows
             if current_found:
@@ -141,27 +146,41 @@ class Bunner(MyActor):
                 
                 
         if next_row: #Looks at the next row, in front of bunner
-            suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
-            test = str(suggested_state) #checks what state bunner would be in next up move
+            next_row_state = next_row.check_collision(self.x)
+            nextState = str(next_row_state) #checks what state bunner would be in next up move
             #print(next_row)
-            if test == "SPLAT":
-                print("State: " + test + "Y Offset: " + str(suggested_obj_y_offset))
-                      
-            if (test.find("ALIVE") == -1): #If next move kills you, don't move
-                print("a")
-            else: #If next move doesn't kill you, move forward
-                #print("Yes")
-                if type(next_row).__name__ == "Grass": #if next row is made up of grass
+            
+            if (nextState.find("ALIVE") == -1):
+                move = False
+            else: #If next move doesn't kill you, move
+                move_direction = randrange(0, 15)
+                if self.reachedRight == True:
+                    print("Go left")
+                    self.input_queue.append(DIRECTION_LEFT)
+                elif self.reachedLeft == True: 
+                    print("Go right")
+                    self.input_queue.appen(DIRECTION_RIGHT)
+                    
+                elif type(next_row).__name__ == "Grass" or self.reachedLeft == True: #if next row is made up of grass
                     if next_row.collide(self.x, 0): #if bunner collides with something (hedge) with no margin
                         self.input_queue.append(DIRECTION_RIGHT) #move to the right
-
+                    if self.x >= 415:
+                        print("Right")
+                        self.reachedRight = True
+                    if self.x <= 40:
+                        print("Left")
+                        self.reachedLeft = True
+                        
+                        
+          # 40 - 440
+                    if move_direction == 5:
+                        self.input_queue.append(choice([0, 1, 3]))
+                print(self.x)
                 self.input_queue.append(DIRECTION_UP) #move up if nothing dangerous is in front of bunner
        
         
         #sys.exit() #For testing purposes
         #self.input_queue.append(move_direction) #Move based on the variable 'move_direction'
-        
-        #Add A* here, move away from objects
 
         
         if self.state == PlayerState.ALIVE:
@@ -730,6 +749,7 @@ class Game:
                 # if we're currently updating the "river" sound effect.
                 volume = sum([16.0 / max(16.0, abs(r.y - self.bunner.y)) for r in self.rows if isinstance(r, row_class)]) - 0.2
                 volume = min(0.4, volume)
+                volume = 0.0
                 self.loop_sound(name, count, volume)
 
         return self
@@ -794,6 +814,7 @@ class Game:
             pass
 
     def loop_sound(self, name, count, volume):
+        volume = 0
         try:
             # Similar to play_sound above, but for looped sounds we need to keep a reference to the sound so that we can
             # later modify its volume or turn it off. We use the dictionary self.looped_sounds for this - the sound
