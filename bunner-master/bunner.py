@@ -1,6 +1,6 @@
 # If the window is too tall to fit on the screen, check your operating system display settings and reduce display
 # scaling if it is enabled.
-import pgzero, pgzrun, pygame, sys
+import pgzero, pgzrun, pygame, sys, time
 from random import *
 from enum import Enum
 
@@ -126,72 +126,77 @@ class Bunner(MyActor):
                 
       
         jumpDirection = 0
-        jumpAdditionX = Bunner.MOVE_DISTANCE * DX[jumpDirection]
-        jumpAdditionY = Bunner.MOVE_DISTANCE * DY[jumpDirection]
         
         logOffset = 10
         carOffset = 60
         trainOffset = 160
-        moveBool = False    
-       
-        for row in game.rows:
-            rowType = type(row).__name__      
-       
-            if row.y == self.y + jumpAdditionY:
-                if row.x != self.x + jumpAdditionX:
-                    if rowType == "Water":
-                        for child in row.children:
-                            if child.x - logOffset <= self.x and child.x + logOffset >= self.x:
-                                print ("jump pls")
-                                jumpDirection = 0
-                                break
-                            else:
-                                print ("dont jump")
-                                jumpDirection = randrange(1,3)
-                                
+        moveBool = False
+        
 
+        myRow =None
+        nextRow = None
+        myFound = None
+
+        for row in game.rows:
+            if myFound:
+                nextRow = row
+                break
+            if row.y == self.y:
+                myRow = row
+                myFound = True
+       
+        
+        nextRowType = type(nextRow).__name__
+        
+        if nextRowType == "Water":
+            for child in row.children:
+                if child.x - logOffset <= self.x and child.x + logOffset >= self.x:
+                    print ("jump pls")
+                    jumpDirection = 0
+                else:
+                    print ("dont jump")
+                    jumpDirection = randrange(1,3)
+                                
+            
                                             
-                    elif rowType == "Road":
-                        for child in row.children:
-                            if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
-                                print ("jump!")
-                                jumpDirection = 0
-                              
-                                break
-                            else:
-                                print ("stop")
-                                jumpDirection = randrange(1,3)
+        elif nextRowType == "Road":
+            for child in row.children:
+                if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
+                    print ("jump!")
+                    jumpDirection = 0
+                               
+                else:
+                    print ("stop")
+                    jumpDirection = randrange(1,3)
                                
 
                                             
-                    elif rowType == "Rail":
-                        for child in row.children:
-                            if child.x + trainOffset <= self.x or child.x - trainOffset >= self.x:
-                                print ("cross track")
-                                jumpDirection = 0
+        elif nextRowType == "Rail":
+            for child in row.children:
+                if child.x + trainOffset <= self.x or child.x - trainOffset >= self.x:
+                    print ("cross track")
+                    jumpDirection = 0
                                 
                               
-                            else:
-                                print ("wait for train")
-                                jumpDirection = randrange(1,3)
+                else:
+                    print ("wait for train")
+                    jumpDirection = randrange(1,3)
                               
 
                                              
-                    elif rowType =="Grass":
-                        for child in row.children:
-                            if child.x == self.x:
-                                jumpDirection = randrange(1,3)
+        elif nextRowType =="Grass":
+            for child in row.children:
+                if child.x == self.x:
+                    jumpDirection = randrange(1,3)
                                
-                            else:
-                                jumpDirection = 0
-                                
+                else:
+                    jumpDirection = 0
 
-                                
-                    else:
-                     
-                        jumpDirection = 0
+                                                  
+        else:        
+            jumpDirection = 0
                         
-                self.input_queue.append(jumpDirection)  
+        self.input_queue.append(jumpDirection)  
         
             
             
