@@ -291,7 +291,8 @@ class PlayerStates(Enum):#The states the player can be in
     Collect = 0
     Attack = 1
     Deffend = 2
-    Death = 3
+    Idle = 3
+    Death = 4
     
 class Player(GravityActor):
     def __init__(self):
@@ -362,6 +363,10 @@ class Player(GravityActor):
             if self.State == PlayerStates.Death:
                 DethConfirm = True
                 print("Player Entered Death State game over")
+                
+            if not game.fruits and not game.enemies:#In order to avoid out of range errors we go idle if there is nothing to collect and nothing to kill
+                self.State == PlayerStates.Idle
+                print ("Nothing to Collect or Kill We Are Idle")
                 
             #If there are fruits to collect and we are in collect state go around collecting fruit and we are alive
             if game.fruits and self.State == PlayerStates.Collect and game.player.lives >= 0:
@@ -450,18 +455,21 @@ class Player(GravityActor):
                 
             #if there no more fruits to collect we are alive and there are enemies still around set state to attack
             if game.enemies and game.player.lives >= 0 and not game.fruits:
-                if game.fruits:#In case there are fruits that have spawned in return to collecting it
-                     self.State = PlayerStates.Collect
-                else:
-                    print("Attacking")
+                    print("Attack")
                     self.State = PlayerStates.Attack
-                if self.State == PlayerStates.Attack:
+            if self.State == PlayerStates.Attack:
+                    if game.fruits:#In case there are fruits that have spawned in return to collecting it
+                         print("From Attack ---->Collect ")
+                         self.State = PlayerStates.Collect
+                    elif game.bolts and self.y-38 == game.bolts[0].y:#In case we are under fire while in the attack state switch to defend if the bolts are on the same y as us
+                        print("From Attack ---->Deffend")
+                        self.State = PlayerStates.Collect
                     if self.x<game.enemies[0].x and self.x!=game.enemies[0].x:#Truck The enemies X
                             dx = 1
                     elif self.x>game.enemies[0].x and self.x!=game.enemies[0].x:#Truck the enemies X
                             dx = -1
-                    if game.enemies[0].y  == self.y:
-                        if self.pos[0]<game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
+                    if game.enemies[0].y  == self.y and game.enemies:
+                        if self.pos[0]<game.enemies[0].x and game.enemies:#If the bolt is coming from the right fire a bublle right
                             dx = 1
                             if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimy time limit has passed and there are only 5 orbs generated
                                 x = min(730, max(70, self.x + self.direction_x * 38))
@@ -476,7 +484,7 @@ class Player(GravityActor):
                                 if self.blowing_orb.blown_frames >= 120:
                                     # Can't be blown any further
                                     self.blowing_orb = None
-                        elif self.x>game.enemies[0].x:#If the bolt is coming from the right fire a bublle right
+                        elif self.x>game.enemies[0].x and game.enemies:#If the bolt is coming from the right fire a bublle right
                             dx = -1
                             if self.fire_timer <= 0 and len(game.orbs) < 5:#Check if the minimum time limit has passed and there are only 5 orbs generated
                                 x = min(730, max(70, self.x + self.direction_x * 38))
