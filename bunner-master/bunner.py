@@ -166,7 +166,6 @@ class Bunner(MyActor):
                     
         if next_row:  
             next_state, next_obj_y_offset = next_row.check_collision(self.x)
-            #print('State: ' + str(next_state) + ' Y Offset: ' + str(next_obj_y_offset))
             if next_state == PlayerState.ALIVE:
            #if current_row == [Grass(None, 0, 0)]:
                self.input_queue.append(0)
@@ -182,11 +181,8 @@ class Bunner(MyActor):
             #else:
                 #self.input_queue.append(2)
             #for direction in range(4):
-                #self.input_queue.append(2)
-                    
+                #self.input_queue.append(2)                    
         #move = (randint(0, 3))
-
-
             #if ai() == 0:
                # self.input_queue.append(ai)
            # elif ai() == 1:
