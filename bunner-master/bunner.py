@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # If the window is too tall to fit on the screen, check your operating system display settings and reduce display
 # scaling if it is enabled.
 import pgzero, pgzrun, pygame, sys, time
