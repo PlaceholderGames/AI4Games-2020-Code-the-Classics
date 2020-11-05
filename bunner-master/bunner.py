@@ -124,17 +124,11 @@ class Bunner(MyActor):
 
     def update(self):
         
-        # Check each control direction  The Original Code, for keyboard movement rather than automatic movement
-        
-        #for direction in range(4):
-            #if key_just_pressed(direction_keys[direction]):
-               # self.input_queue.append(direction)
                
         current_found = False
         next_row = None
         current_row = None
         move = False
-        move_direction = 0
         
         for row in game.rows: #Goes through all rows
             if current_found:
@@ -148,40 +142,34 @@ class Bunner(MyActor):
         if next_row: #Looks at the next row, in front of bunner
             next_row_state = next_row.check_collision(self.x)
             nextState = str(next_row_state) #checks what state bunner would be in next up move
-            #print(next_row)
             
-            if (nextState.find("ALIVE") == -1):
+            if (nextState.find("ALIVE") == -1): #next state results in death
                 move = False
             else: #If next move doesn't kill you, move
                 move_direction = randrange(0, 15)
-                if self.reachedRight == True:
-                    print("Go left")
+                
+                if self.reachedRight == True: #reached if
                     self.input_queue.append(DIRECTION_LEFT)
                 elif self.reachedLeft == True: 
-                    print("Go right")
                     self.input_queue.appen(DIRECTION_RIGHT)
                     
                 elif type(next_row).__name__ == "Grass" or self.reachedLeft == True: #if next row is made up of grass
                     if next_row.collide(self.x, 0): #if bunner collides with something (hedge) with no margin
                         self.input_queue.append(DIRECTION_RIGHT) #move to the right
-                    if self.x >= 415:
-                        print("Right")
+                        
+                    if self.x >= 415: #reached the far right side of the screen
                         self.reachedRight = True
-                    if self.x <= 40:
-                        print("Left")
+                    if self.x <= 40: #reached the far left side of the screen
                         self.reachedLeft = True
                         
                         
-          # 40 - 440
                     if move_direction == 5:
-                        self.input_queue.append(choice([0, 1, 3]))
-                print(self.x)
+                        self.input_queue.append(choice([0, 1, 3])) #random number for random movement
+                
                 self.input_queue.append(DIRECTION_UP) #move up if nothing dangerous is in front of bunner
        
         
-        #sys.exit() #For testing purposes
-        #self.input_queue.append(move_direction) #Move based on the variable 'move_direction'
-
+    
         
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
