@@ -120,12 +120,10 @@ class Bunner(MyActor):
 
     def update(self):
 
-
-        moveDirection = 0
+        
         current_found = False #  Putting in a flag, so we can run once more through the for loop
         current_row = None
         next_row = None #  We need a new variable  to store the next row data
-        rowType = type(next_row).__name__
         currentY = None
         PrevY = None
 
@@ -139,7 +137,8 @@ class Bunner(MyActor):
                 current_row = row # *** Here is where you could also set next_row to do look ahead stuff
                 current_found = True
                 print('Current row.y: ' + str(row.y))
-
+                
+        rowType = type(next_row).__name__
         if next_row:
             suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
             test = str(suggested_state)
@@ -151,27 +150,21 @@ class Bunner(MyActor):
 
             else:
                 print("YES")
-                self.input_queue.append(0)
                 prevY = currentY
                 currentY = self.y
-                if rowType == "Grass":
+
+                if self.x > 400:
+                    self.input_queue.append(DIRECTION_LEFT)
+                elif self.x == 40:
+                    self.input_queue.append(DIRECTION_RIGHT)    
+                elif rowType == "Grass":
                     for child in next_row.children:
                         if next_row.collide(self.x, 0):
-                            for i in range(16):
-                                self.input_queue.append(1)
+                                self.input_queue.append(DIRECTION_RIGHT)
                                 currentY = self.y
-                                self.input_queue.append(0)
                                 if self.y > currentY:
                                     break
-                                
-                            if self.y == self.y and type(child).__name__ == "Hedge":
-                                for i in range(16):
-                                    self.input_queue.append(3)
-                                    currentY = self.y
-                                    self.input_queue.append(0)
-                                    if self.y > currentY:
-                                        break
-                          
+                self.input_queue.append(DIRECTION_UP)
 
         
 
