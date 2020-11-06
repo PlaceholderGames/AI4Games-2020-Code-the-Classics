@@ -185,8 +185,9 @@ class Bunner(MyActor):
                         print('Self Y: ' + str(self.x) + ' Hedge Y: ' + str(hedge.x))
                         # *** My worry is you have the code the wrong way round
                         # *** and it should be checking X values instead
-
-                        if self.x < hedge.x or self.x > hedge.x:
+                        
+                        #will always be true but for now it doesnt matter until the input bug gets fixed
+                        if self.x <= hedge.x or self.x > hedge.x: #Tried to use equal to hedge.x but bunny moves in 10's whilst hedge is mad in 40's + logs can offset bunny's x pos so it very unlikely they'll ever be the same even if the bunny is hitting the wall
                         # *** This will always be true, as it is the next row isn't it?
                             if self.screenCheck == False:
                                 self.input_queue.append(1)                        
