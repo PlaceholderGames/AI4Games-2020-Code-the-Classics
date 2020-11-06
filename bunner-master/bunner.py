@@ -71,8 +71,9 @@ class PlayerState(Enum):
 # Constants representing directions
 DIRECTION_UP = 0
 DIRECTION_RIGHT = 1
-DIRECTION_LEFT = 2
-DIRECTION_DOWN = 3
+DIRECTION_DOWN = 2
+DIRECTION_LEFT = 3
+
 
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 
@@ -118,64 +119,126 @@ class Bunner(MyActor):
                 # No need to continue searching
                 return
 
+
+    ## Code for Bunny Artificial Intelligence
+    ## Coded and annotated By Tyraye Dennis-Mendez for The University of South Wales
+    ## 
     def update(self):
         # Check each control direction
+        ## Variables I have made for the movement done by the AI
         jumpDirection = 0
+        ## Currently unused but was used earlier in development in order to help
+        ## Locate and test which direction the Bunny would jump in.
+        
         Current_Found = 0
         Current_Row = None
         Next_Row = None
+        ## used in the Row checking section in order to check for tiles ahead of bunny and tiles it is currently on.
+
         Current_Y = None
+        Current_X = None
         Prev_Y = None
         i = 0
         offset = 80
+        ## Remaining variables that were either used in testing or other parts of the code to check locations of
+        ## the Bunny or objects surrounding the Bunny.
 
-
+        ## This section of my code finds the next row of the game and lets the bunny AI know what is on the
+        ## the next tile ahead of itself.
         for row in game.rows:
             if Current_Found:
                 Next_Row = row
                 break
+            ## Checks the Next row ahead of the bunny and stores it in a variable.
             if row.y == self.y:
                 Current_Row = row
                 Current_Found = True
+            ## Checks the Current row that the Bunny is stood on by using the bunnys Y co-ordinate.
 
 
+
+        ## Finite State Machine Implementation.
         if Next_Row:
             NextState = Next_Row.check_collision(self.x)
+            ## Checks for collision between the bunny and anything ahead of itself
             print(NextState)
+            ## Used for testing, shows the output of the bunny and lets me know which direction the Bunny
+            ## Next hops in.
             PlayerNextState = str(NextState)
-            if str(NextState) == "SPLAT":
-                print(NextState)
+            #if str(NextState) == "SPLAT":
+                #print(NextState)
 
             if(PlayerNextState.find("ALIVE") == -1):
-                print("Bunny Dead")
+                print("Bunny Alive")
+            ## Checks to see if the bunny is alive and allows the rest of the code to continue to keep running until
+            ## the Bunny dies within the game.
+            ## Prints out the current state of the Bunny until it dies.
 
             else:
-                ##rowType = type(Next_Row)
-                i += 1
-                rowType = type(row).__name__
-                if row.y == self.y + Bunner.MOVE_DISTANCE * DY[jumpDirection]:
-                    if row.x != self.x + Bunner.MOVE_DISTANCE * DX[jumpDirection]:
-                        if rowType == "Water":
-                            for child in row.children:
-                               # print ("row " + str(i)+ "+ "+ type(child).name+"( " + str(child.x)+ ", "+ str(child.y)+ ") ")
-                                if child.x - offset <= self.x and child.x + offset >= self.x:
-                                    print ("jump pls")
-                                    jumpDirection = 0
-                                else:
-                                    print ("dont jump")
-                                    jumpDirection = randrange(1,3) 
-                        else:
-                            for child in row.children:
-                                if type(child).__name__ == "Hedge":
-                                    #print ("row " + str(i)+ "+ "+ type(child).name+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
-                                    jumpDirection = randrange(1,3)
-                                if child.x - offset >= self.x and child.x + offset <= self.x:
-                                    jumpDirection = 1
-                                    print ("row " + str(i)+ "+ "+ type(child).__name__+"( " + str(child.x)+ ", "+ str(child.y)+ ")vs. "+"( " + str(self.x)+ ", "+ str(self.y)+ ")")
 
-        self.input_queue.append(jumpDirection)
+                #####Detection of what is ahead of Bunny and what bunny should do in each situation
+                ## This is the Finite state machine implimentation part of my code.
+                ## Below are multiple states which the AI will bounce between upon it coming upon
+                ## an issue stated such as colliding with a bush.
+                
+                ## Removed old movement system and changed it to the code below as it better implemented
+                ## the FSM into practise and worked a lot better and consistently than my previous code.
+                rowType = type(Next_Row).__name__
+                self.input_queue.append(0)
+                print ("Object ahead")
+                ## Added this function for testing in order to output what the Bunny see's ahead of itself
+                ## whenever there is an object such as a log, Car, Hedge, Train etc; the Bunny will stop moving
+                ## and it will wait until the object has past before it continues its path forwards.
+                Prev_Y = Current_Y
+                Current_Y = self.y
+                Current_X = self.x
+            
+
+                ## Collision detection for when the Bunny goes too far to the left side of the screen
+                ## the code below tells the Bunny to move in the other direction when it goes too far left.
+                if self.x <= 40:
+                    self.input_queue.append(1)
+           
 
 
+                ## Collision detection for when the Bunny goes too far to the right side of the screen
+                ## the code below tells the Bunny to move in the other direction when it goes too far right.
+                if self.x > 415:
+                    self.input_queue.append(3)
+                
+
+
+
+                ## The section below is used in order to allow the Bunny AI to make decisions based off of
+                ## the current situation it is in
+                elif rowType == "Grass":
+                    for child in Next_Row.children:
+                        if Next_Row.collide(self.x, 0):
+                            ##print("On Grass")
+                            ## Used to test to see if AI can see Grass tile ahead of itself
+                            self.input_queue.append(1)
+                            Current_X = self.x
+                            self.input_queue.append(0)
+                            if self.x > Current_X:
+                                break
+    
+                        if self.y == self.y and type(child).__name__ == "Hedge":
+                            for i in range (16):
+                                ##print("Bush ahead")
+                                ## Used to test to see if AI can see Bush ahead of itself
+                                self.input_queue.append(3)
+                                Current_Y = self.y
+                                self.input_queue.append(0)
+                                ##print(Current_Y)
+                                if self.y > Current_Y:
+                                    break
+
+
+            ## More print functions used within my testing
+                ##print (rowType) ## Shows the tile the Bunny is currently on.
+            #print (self.x)
+            ##print (Current_Y)
+            ##print (Current_Found)
 
 
         if self.state == PlayerState.ALIVE:
