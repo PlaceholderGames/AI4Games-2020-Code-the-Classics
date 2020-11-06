@@ -181,7 +181,7 @@ class Bunner(MyActor):
                 if rowCheck == "Grass":
                     print("grass")
                     self.stepOnLog = True
-                    
+
                     if next_row.collide(self.x, 5):
                         for hedge in next_row.children:
                             
@@ -267,17 +267,15 @@ class Bunner(MyActor):
             # the ground. If it's above zero, they're currently jumping to a new location.
 
             # Are we on the ground, and are there inputs to process?
-            if self.updateCounter == 3:
-                self.updateCounter = 0
 
             if self.timer == 0 and len(self.input_queue) > 0:
                 print ('Length of string: ' + str (len(self.input_queue)))
                 #inputCheck = False
-                #if len(self.input_queue) > 10:
-                    #self.input_queue.pop(0)
-                #else:
+                if len(self.input_queue) > 10:
+                    self.input_queue.pop(0)
+                else:
                 # Take the next input off the queue and process it
-                self.handle_input(self.input_queue.pop(0))
+                    self.handle_input(self.input_queue.pop(0))
 
             land = False
             if self.timer > 0:
@@ -287,9 +285,6 @@ class Bunner(MyActor):
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
                     
-            self.updateCounter - 1
-            if self.updateCounter < 0:
-                self.updateCounter = 4
             
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
