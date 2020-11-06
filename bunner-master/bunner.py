@@ -192,7 +192,7 @@ class Bunner(MyActor):
                                 self.input_queue.append(1)
                                 print ("break 2")
                                 if self.x <= 40:
-                                    screenCheck = True 
+                                    screenCheck = False 
                                 break
 
                 elif type(row).__name__ == "Dirt":
