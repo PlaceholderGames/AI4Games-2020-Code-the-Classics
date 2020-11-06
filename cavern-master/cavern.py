@@ -244,7 +244,8 @@ class Fruit(GravityActor):
     EXTRA_HEALTH = 3
     EXTRA_LIFE = 4
 
-    def __init__(self, pos, trapped_enemy_type=0):
+    def __init__(self, pos, trapped_enemy_type=0, ):
+        
         super().__init__(pos)
 
         # Choose which type of fruit we're going to be.
@@ -313,7 +314,8 @@ class Player(GravityActor):
         self.blowing_orb = None
         self.target_fruit = None
         self.game_fruits = []
-        
+        self.jump = False
+        self.notTurn = False
         
 
     def hit_test(self, other):
@@ -339,34 +341,70 @@ class Player(GravityActor):
     def search_update(self):
         #save the level fruits in a different player array so if 
         #we want to perform some sorting in this array we dont affect the game one
-        print("Search update")
+        print("SEARCH")
         if game.fruits:
             self.game_fruits = game.fruits
             self.target_fruit = self.game_fruits[0]
-            print("Fruta encontrada")
 
     def move_update(self):
-        print("Move update")
-        if self.collidepoint(self.target_fruit.center):           
+        print("MOVE")
+        if self.collidepoint(self.target_fruit.center): 
+            if self.notTurn: 
+                self.notTurn = False
             self.target_fruit = None
-        else:
             self.dx = 0
-            
-            if self.target_fruit.x > self.x:
-                self.dx = 1
-            elif self.target_fruit.x < self.x:
-                self.dx = -1
-                
+        else:
+            #self.dx = 0
+            print(self.target_fruit.x)
+            print(self.target_fruit.y)
+            print(self.x)
+            print(self.y)
+            if self.target_fruit.y == self.y:
+                if self.target_fruit.x > self.x:
+                    self.dx = 1
+                    print("RIGHT")
+                elif self.target_fruit.x < self.x:
+                    self.dx = -1
+                    print("LEFT")
+            elif self.target_fruit.y != self.y:
+                if self.target_fruit.y > self.y: #BELOW
+                    if self.target_fruit.x > self.x and self.notTurn: #BELOW RIGHT
+                        self.dx = 1 
+                        self.notTurn = True
+                        print("BELOW RIGHT")
+                    elif self.target_fruit.x < self.x and self.notTurn: #BELOW LEFT     
+                        self.dx = -1 
+                        self.notTurn = True
+                        print("BELOW LEFT")
+                elif self.target_fruit.y < self.y and self.vel_y == 0 and self.landed: #ABOVE
+                    if self.target_fruit.x > self.x:#ABOVE RIGHT
+                        self.dx = 1
+                        self.jump = True
+                        print("ABOVE RIGHT")
+                    elif self.target_fruit.x < self.x:#ABOVE LEFT
+                        self.dx = -1
+                        self.jump = True
+                        print("ABOVE LEFT")
+               
             if self.dx != 0:
                 self.direction_x = self.dx
                 # If we haven't just fired an orb, carry out horizontal movement
                 if self.fire_timer < 10:
-                    self.move(self.dx, 0, 4)
-                    print("Moviemiento")
+                    if self.jump:
+                        self.move(self.dx, 0, 4)
+                        self.vel_y = -16
+                        self.landed = False
+                        game.play_sound("jump")
+                        self.jump = False
+                        
+                    else:
+                        self.move(self.dx, 0, 4)
+                        
         
     def create_bubble_update(self):
-        print("Bubble created")
+        print("CREATE BUBBLE")
         
+    
     def die_update(self):
         print("Player Dead")
    
@@ -376,6 +414,7 @@ class Player(GravityActor):
         super().update(self.health > 0)
         self.fire_timer -= 1
         self.hurt_timer -= 1
+        #self.fire_rate -= 1
         
         if self.landed:
             # Hurt timer starts at 200, but drops to 100 once the player has landed
@@ -395,7 +434,7 @@ class Player(GravityActor):
                     self.reset()
                     
         elif self.player_state == self.player_state.SEARCHFRUIT:
-            if self.lives == 0:
+            if self.lives == 0 and self.health == 0:
                 self.player_state = self.player_state.DIE
             elif self.target_fruit != None:
                 self.player_state = self.player_state.MOVE
@@ -403,7 +442,7 @@ class Player(GravityActor):
                 self.search_update();
         
         elif self.player_state == self.player_state.MOVE:
-            if self.lives == 0:
+            if self.lives == 0 and self.health == 0:
                 self.player_state = self.player_state.DIE
             elif self.target_fruit == None:
                 self.player_state = self.player_state.SEARCHFRUIT;
@@ -413,7 +452,7 @@ class Player(GravityActor):
                 self.move_update();        
         
         elif self.player_state == self.player_state.CREATE_BUBBLE:
-            if self.lives == 0:
+            if self.lives == 0 and self.health == 0:
                 self.player_state = self.player_state.DIE
             elif self.fire_rate > 0: 
                 self.player_state = self.player_state.MOVE
@@ -438,94 +477,6 @@ class Player(GravityActor):
             else:
                 self.image = "run" + dir_index + str((game.timer // 8) % 4)
         
-        
-        """
-        # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
-        # is zero, we want the player to just fall out of the level
-        
-        super().update(self.health > 0)
-
-        self.fire_timer -= 1
-        self.hurt_timer -= 1
-        
-
-        if self.landed:
-            # Hurt timer starts at 200, but drops to 100 once the player has landed
-            self.hurt_timer = min(self.hurt_timer, 100)
-
-        if self.hurt_timer > 100:
-            # We've just been hurt. Either carry out the sideways motion from being knocked by a bolt, or if health is
-            # zero, we're dropping out of the level, so check for our sprite reaching a certain Y coordinate before
-            # reducing our lives count and responding the player. We check for the Y coordinate being the screen height
-            # plus 50%, rather than simply the screen height, because the former effectively gives us a short delay
-            # before the player respawns.
-            if self.health > 0:
-                self.move(self.direction_x, 0, 4)
-            else:
-                if self.top >= HEIGHT*1.5:
-                    self.lives -= 1
-                    self.reset()
-        else:
-            # We're not hurt
-            # Get keyboard input. dx represents the direction the player is facing
-            dx = 0
-            if keyboard.left:
-                dx = -1
-            elif keyboard.right:
-                dx = 1
-
-            if dx != 0:
-                self.direction_x = dx
-
-                # If we haven't just fired an orb, carry out horizontal movement
-                if self.fire_timer < 10:
-                    self.move(dx, 0, 4)
-
-            # Do we need to create a new orb? Space must have been pressed and released, the minimum time between
-            # orbs must have passed, and there is a limit of 5 orbs.
-            if space_pressed() and self.fire_timer <= 0 and len(game.orbs) < 5:
-                # x position will be 38 pixels in front of the player position, while ensuring it is within the
-                # bounds of the level
-                x = min(730, max(70, self.x + self.direction_x * 38))
-                y = self.y - 35
-                self.blowing_orb = Orb((x,y), self.direction_x)
-                game.orbs.append(self.blowing_orb)
-                game.play_sound("blow", 4)
-                self.fire_timer = 20
-
-            if keyboard.up and self.vel_y == 0 and self.landed:
-                # Jump
-                self.vel_y = -16
-                self.landed = False
-                game.play_sound("jump")
-
-        # Holding down space causes the current orb (if there is one) to be blown further
-        if keyboard.space:
-            if self.blowing_orb:
-                # Increase blown distance up to a maximum of 120
-                self.blowing_orb.blown_frames += 4
-                if self.blowing_orb.blown_frames >= 120:
-                    # Can't be blown any further
-                    self.blowing_orb = None
-        else:
-            # If we let go of space, we relinquish control over the current orb - it can't be blown any further
-            self.blowing_orb = None
-
-        # Set sprite image. If we're currently hurt, the sprite will flash on and off on alternate frames.
-        self.image = "blank"
-        if self.hurt_timer <= 0 or self.hurt_timer % 2 == 1:
-            dir_index = "1" if self.direction_x > 0 else "0"
-            if self.hurt_timer > 100:
-                if self.health > 0:
-                    self.image = "recoil" + dir_index
-                else:
-                    self.image = "fall" + str((game.timer // 4) % 2)
-            elif self.fire_timer > 0:
-                self.image = "blow" + dir_index
-            elif dx == 0:
-                self.image = "still"
-            else:
-                self.image = "run" + dir_index + str((game.timer // 8) % 4)"""
 
 class Robot(GravityActor):
     TYPE_NORMAL = 0
@@ -704,8 +655,8 @@ class Game:
         # Every 100 frames, create a random fruit (unless there are no remaining enemies on this level)
         if self.timer % 100 == 0 and len(self.pending_enemies + self.enemies) > 0:
             # Create fruit at random position
-            #self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
-            self.fruits.append(Fruit((randint(140, 660), randint(180, 200))))
+            self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
+            #self.fruits.append(Fruit((randint(140, 660), randint(180, 200))))
 
         # Every 81 frames, if there is at least 1 pending enemy, and the number of active enemies is below the current
         # level's maximum enemies, create a robot
