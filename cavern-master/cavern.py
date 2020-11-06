@@ -1,6 +1,7 @@
 from random import choice, randint, random, shuffle
 from enum import Enum
 import pygame, pgzero, pgzrun, sys
+import numpy as np
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -17,8 +18,6 @@ pgzero_version = [int(s) if s.isnumeric() else s for s in pgzero.__version__.spl
 if pgzero_version < [1,2]:
     print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
     sys.exit()
-
-
 
 # Set up constants
 WIDTH = 800
@@ -290,6 +289,9 @@ class Fruit(GravityActor):
         self.image = "fruit" + str(self.type) + anim_frame
 
 class Player(GravityActor):
+
+    global game, player_state
+
     def __init__(self):
         # Call constructor of parent class. Initial pos is 0,0 but reset is always called straight afterwards which
         # will set the actual starting position.
@@ -303,9 +305,13 @@ class Player(GravityActor):
         self.vel_y = 0
         self.direction_x = 1            # -1 = left, 1 = right
         self.fire_timer = 0
+        self.fire_rate = 5
         self.hurt_timer = 100   # Invulnerable for this many frames
         self.health = 3
         self.blowing_orb = None
+        self.target_fruit = None
+        self.game_fruits = []
+        player_state = Player_State.SEARCHFRUIT
 
     def hit_test(self, other):
         # Check for collision between player and bolt - called from Bolt.update. Also check hurt_timer - after being hurt,
@@ -326,13 +332,114 @@ class Player(GravityActor):
         else:
             return False
 
+
+    def search_update(self):
+        #save the level fruits in a different player array so if 
+        #we want to perform some sorting in this array we dont affect the game one
+        self.game_fruits = game.fruits
+        self.target_fruit = self.game_fruits[0]
+
+    def move_update(self):
+        if self.collidepoint(target_fruit.center):           
+            target_fruit = None
+        else:
+            dx = 0
+            
+            if self.target_fruit.x > self.x:
+                dx = 1
+            elif self.target_fruit.x < self.x:
+                dx = -1
+                
+            if dx != 0:
+                self.direction_x = dx
+                # If we haven't just fired an orb, carry out horizontal movement
+                if self.fire_timer < 10:
+                    self.move(dx, 0, 4)
+        
+    def create_bubble_update(self):
+        print("Bubble created")
+        
+    def die_update(self):
+        print("Player Dead")
+   
     def update(self):
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
         # is zero, we want the player to just fall out of the level
         super().update(self.health > 0)
+        self.fire_timer -= 1
+        self.hurt_timer -= 1
+        
+        if self.landed:
+            # Hurt timer starts at 200, but drops to 100 once the player has landed
+            self.hurt_timer = min(self.hurt_timer, 100)
+            
+        if self.hurt_timer > 100:
+            # We've just been hurt. Either carry out the sideways motion from being knocked by a bolt, or if health is
+            # zero, we're dropping out of the level, so check for our sprite reaching a certain Y coordinate before
+            # reducing our lives count and responding the player. We check for the Y coordinate being the screen height
+            # plus 50%, rather than simply the screen height, because the former effectively gives us a short delay
+            # before the player respawns.
+            if self.health > 0:
+                self.move(self.direction_x, 0, 4)
+            else:
+                if self.top >= HEIGHT*1.5:
+                    self.lives -= 1
+                    self.reset()
+                    
+        elif player_state == Player_State.SEARCHFRUIT:
+            if self.lives == 0:
+                player_state = Player_State.DIE
+            elif self.target_fruit != None:
+                player_state = Player_State.MOVE
+            else:
+                self.search_update(self);
+        
+        elif player.state == Player_State.MOVE:
+            if self.lives == 0:
+                player_state = Player_State.DIE
+            elif self.target_fruit == None:
+                player_state = Player_State.SEARCHFRUIT;
+            elif self.fire_rate <= 0 and self.target_fruit != None:    
+                player_state = Player_State.CREATE_BUBBLE;
+            else:
+                self.move_update(self);        
+        
+        elif player.state == Player_State.CREATE_BUBBLE:
+            if self.lives == 0:
+                player_state = Player_State.DIE
+            elif self.fire_rate > 0: 
+                player_state = Player_State.MOVE
+            else:
+                self.create_bubble_update(self);
+        
+        elif player.state == Player_State.DIE:
+            print("player dead")
+           
+        self.image = "blank"
+        if self.hurt_timer <= 0 or self.hurt_timer % 2 == 1:
+            dir_index = "1" if self.direction_x > 0 else "0"
+            if self.hurt_timer > 100:
+                if self.health > 0:
+                    self.image = "recoil" + dir_index
+                else:
+                    self.image = "fall" + str((game.timer // 4) % 2)
+            elif self.fire_timer > 0:
+                self.image = "blow" + dir_index
+            elif dx == 0:
+                self.image = "still"
+            else:
+                self.image = "run" + dir_index + str((game.timer // 8) % 4)
+        
+        
+        """
+        # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
+        # is zero, we want the player to just fall out of the level
+        
+        super().update(self.health > 0)
 
         self.fire_timer -= 1
         self.hurt_timer -= 1
+        
 
         if self.landed:
             # Hurt timer starts at 200, but drops to 100 once the player has landed
@@ -410,7 +517,7 @@ class Player(GravityActor):
             elif dx == 0:
                 self.image = "still"
             else:
-                self.image = "run" + dir_index + str((game.timer // 8) % 4)
+                self.image = "run" + dir_index + str((game.timer // 8) % 4)"""
 
 class Robot(GravityActor):
     TYPE_NORMAL = 0
@@ -491,6 +598,9 @@ class Robot(GravityActor):
 
 
 class Game:
+
+    global player_state
+    
     def __init__(self, player=None):
         self.player = player
         self.level_colour = -1
@@ -588,7 +698,8 @@ class Game:
         # Every 100 frames, create a random fruit (unless there are no remaining enemies on this level)
         if self.timer % 100 == 0 and len(self.pending_enemies + self.enemies) > 0:
             # Create fruit at random position
-            self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
+            #self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
+            self.fruits.append(Fruit((randint(140, 660), randint(180, 200))))
 
         # Every 81 frames, if there is at least 1 pending enemy, and the number of active enemies is below the current
         # level's maximum enemies, create a robot
@@ -714,15 +825,27 @@ class State(Enum):
     PLAY = 2
     GAME_OVER = 3
 
-
+#Player States    
+class Player_State(Enum):
+    SEARCHFRUIT = 1
+    MOVE = 2
+    CREATE_BUBBLE = 3
+    DIE = 4
+    
+    
 def update():
-    global state, game
+    global state, game, player_state
 
     if state == State.MENU:
         if space_pressed():
             # Switch to play state, and create a new Game object, passing it a new Player object to use
             state = State.PLAY
             game = Game(Player())
+            
+            #x = np.array([2, 1, 4, 3, 5])
+            #i = np.argsort(x)
+           # for n in i:
+                #print(x[n])
         else:
             game.update()
 
@@ -778,6 +901,9 @@ except:
 
 # Set the initial game state
 state = State.MENU
+
+# Set the initial player state
+player_state = Player_State.SEARCHFRUIT
 
 # Create a new Game object, without a Player object
 game = Game()
