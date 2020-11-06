@@ -308,7 +308,7 @@ class Player(GravityActor):
         self.vel_y = 0
         self.direction_x = 1            # -1 = left, 1 = right
         self.fire_timer = 0
-        self.fire_rate = 5
+        self.fire_rate = 200
         self.hurt_timer = 100   # Invulnerable for this many frames
         self.health = 3
         self.blowing_orb = None
@@ -404,6 +404,16 @@ class Player(GravityActor):
     def create_bubble_update(self):
         print("CREATE BUBBLE")
         
+        if self.fire_rate <= 0 and len(game.orbs) < 5:
+            # x position will be 38 pixels in front of the player position, while ensuring it is within the
+            # bounds of the level
+            x = min(730, max(70, self.x + self.direction_x * 38))
+            y = self.y - 35
+            self.blowing_orb = Orb((x,y), self.direction_x)
+            game.orbs.append(self.blowing_orb)
+            game.play_sound("blow", 4)
+            self.fire_timer = 20
+            self.fire_rate = 200
     
     def die_update(self):
         print("Player Dead")
@@ -414,7 +424,7 @@ class Player(GravityActor):
         super().update(self.health > 0)
         self.fire_timer -= 1
         self.hurt_timer -= 1
-        #self.fire_rate -= 1
+        self.fire_rate -= 1
         
         if self.landed:
             # Hurt timer starts at 200, but drops to 100 once the player has landed
@@ -454,7 +464,7 @@ class Player(GravityActor):
         elif self.player_state == self.player_state.CREATE_BUBBLE:
             if self.lives == 0 and self.health == 0:
                 self.player_state = self.player_state.DIE
-            elif self.fire_rate > 0: 
+            elif self.fire_rate > 60: 
                 self.player_state = self.player_state.MOVE
             else:
                 self.create_bubble_update();
@@ -655,8 +665,12 @@ class Game:
         # Every 100 frames, create a random fruit (unless there are no remaining enemies on this level)
         if self.timer % 100 == 0 and len(self.pending_enemies + self.enemies) > 0:
             # Create fruit at random position
-            self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
-            #self.fruits.append(Fruit((randint(140, 660), randint(180, 200))))
+            
+            #ORIGINAL FRUITS SPAWN
+            #self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
+
+            #TO AVOID THE BUG OF THE PLAYER I CREATE THE FRUITS IN THE MIDDLE PLATFORM
+            self.fruits.append(Fruit((randint(140, 660), randint(180, 200))))
 
         # Every 81 frames, if there is at least 1 pending enemy, and the number of active enemies is below the current
         # level's maximum enemies, create a robot
