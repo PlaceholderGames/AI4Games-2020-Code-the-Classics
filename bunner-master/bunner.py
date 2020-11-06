@@ -1,9 +1,9 @@
-# If the window is too tall to fit on the screen, check your operating system display settings and reduce display
-# scaling if it is enabled.
+# If the window is too tall to fit on the screen, check your operating
+# system display settings and reduce display scaling if it is enabled.
 import pgzero, pgzrun, pygame, sys
 from random import *
 from enum import Enum
-
+###################################
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
 if sys.version_info < (3,5):
@@ -119,11 +119,52 @@ class Bunner(MyActor):
                 return
 
     def update(self):
-        # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
 
+        #LOGIC CODE FROM MIKE'S DEMO
+        current_found = False #  Putting in a flag, so we can run once more through the for loop
+        rowCurrent = None
+        rowAhead = None #  We need a new variable  to store the next row data
+        rowType = type(rowAhead).__name__
+       
+
+        for row in game.rows: #Goes though all of the rows and finds the current row
+            if current_found:
+                rowAhead = row
+                #print('Next row.y: ' + str(row.y))
+                break
+
+            if row.y == self.y:
+                rowCurrent = row # *** Here is where you could also set next_row to do look ahead stuff
+                current_found = True
+                #print('Current row.y: ' + str(row.y))
+                
+
+        if rowAhead:
+            rowAheadState = rowAhead.check_collision(self.x) #Checks the collisions for the row ahead
+            futureState = str(rowAheadState) #creates a variable which can check the state Bunner would be in if it moved
+
+            if (futureState.find("ALIVE") == -1): #Tells you Bunner would have died if it moved
+                print("Woulda died")
+
+            else: #If Bunner wont die, then he will move forward
+                print("Free to hop")
+                self.input_queue.append(DIRECTION_UP)
+                
+            for child in row.children:
+                if rowAhead.collide(self.x, 0) and type(child).__name__ == "Hedge": #If Bunner is colliding with something, and that something is the Hedge
+                    if self.x < 415:                                                #Then it will move right an up until it hits the very right.
+                        self.input_queue.append(DIRECTION_RIGHT)                    #If it hits the very right, then it will move left and up.
+                        self.input_queue.append(DIRECTION_UP)
+                        #print(self.x)
+                        break
+                    elif self.x > 65:
+                        #print("helloooooooo")
+                        self.input_queue.append(DIRECTION_LEFT)
+                        self.input_queue.append(DIRECTION_UP)
+                        #print(self.x)
+                            
+                                
+                
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
