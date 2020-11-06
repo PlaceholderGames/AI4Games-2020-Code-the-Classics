@@ -134,53 +134,50 @@ class Bunner(MyActor):
             # the ground. If it's above zero, they're currently jumping to a new location.
             
             
-            current_found = False
-            current_row = None
-            next_row = None
+            current_found = False   # Declares multiple variables to hold
+            current_row = None      # row data so that the detection statements
+            next_row = None         # work as intended
 
             
-            for row in game.rows:
-                if current_found:
-                    next_row = row
-                    print('next row.y:' + str(row.y))
-                    break
+            for row in game.rows:   # Will check every row that is currently on the screen
+                if current_found:   # checks if the variable is true (which it shouldn't be on the first run)
+                    next_row = row  # Sets the variable as the current row it is checking
+                    #print('next row.y:' + str(row.y))   
+                    break	# Break out of the loop as the next row has been found
 
-                if row.y == self.y:
-                    current_row = row
-                    current_found = True
-                    print('current row.y:' + str(row.y))
+                if row.y == self.y: # Checks to see if the y value for the row is the same value for the bunner
+                    current_row = row	# Sets the current row variable with the row data
+                    current_found = True	# Sets the variable as true as the current row has been found
+                    #print('current row.y:' + str(row.y))
 
             
 
-            if next_row:
-                self.state, dead_obj_y_offset = next_row.check_next_collision(self.x)
-                print('State: ' + str(self.state) + ' Y Offset: ' + str(dead_obj_y_offset))
-                if self.state == PlayerState.ALIVE:
-                    
-                    if type(next_row).__name__ == "Grass":
-                        for hedge in next_row.children:
-                            print('self X: ' + str(self.x) + ' Hedge X: ' + str(hedge.x))
-                            if self.y < hedge.y:
-                                if self.checked_hedges == False:
-                                    self.handle_input(1)
-                                    if self.x >= 400:
-                                        self.checked_hedges = True
-                                        self.handle_input(3)
-                                        break
+            if next_row:    # Checks to see if the next row variable has any data in it
+                self.state, dead_obj_y_offset = next_row.check_next_collision(self.x)   # Checks if there is anything on the row in front of the bunner
+                #print('State: ' + str(self.state) + ' Y Offset: ' + str(dead_obj_y_offset))
+                if self.state == PlayerState.ALIVE: # If the collision check returns the player state as ALIVE then the following code will run        
+                    if type(next_row).__name__ == "Grass":  # Checks to see if the next row is a grass row
+                        for hedge in next_row.children: # A loop that will check all the child actors on the next row
+                            #print('self X: ' + str(self.x) + ' Hedge X: ' + str(hedge.x))
+                            if self.y < hedge.y:    # Makes sure that the following will only run if the player is still a row below the next
+                                if self.checked_hedges == False:    # If the variable is false then move the player right
+                                    self.handle_input(1)    # Sets an input for the player to move right
+                                    if self.x >= 400:   # If the player is more than 400 x value then set the variables so that the player moves left instead
+                                        self.checked_hedges = True	# Changes the variable to true so that different code can run
+                                        self.handle_input(3)    # Sets an input for the player to move left
+                                        break	# Break out of the loop because we don't need to check anymore
                                     else:
-                                        break
+                                        break	# Break out of the loop because we don't need to check anymore
                                 else:
-                                    self.handle_input(3)
-                                    if self.x <= 60:
-                                        self.checked_hedges = False
-                                        break
+                                    self.handle_input(3)    # Sets an input for for the player to move left
+                                    if self.x <= 60:    # Checks to see how far to the right the bunner has moved
+                                        self.checked_hedges = False	# Sets the variable to false so the player can move right
+                                        break	# Break out of the loop because we don't need to check anymore
                                     else:
-                                        break
-                    self.handle_input(self.input_queue.pop(0))
-                #else:
-                    #self.handle_input(1)
+                                        break	# Break out of the loop because we don't need to check anymore
+                    self.handle_input(self.input_queue.pop(0))  # Sets the input for the player to move forward when they are able to
 
-                self.state = PlayerState.ALIVE
+                self.state = PlayerState.ALIVE  # Resets the players state to ALIVE so that the game understands that the player is still alive
 
             land = False
             if self.timer > 0:
@@ -189,9 +186,9 @@ class Bunner(MyActor):
                 self.y += DY[self.direction]
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
-                print('Move')
-                print(self.y)
-            print(self.timer)
+                #print('Move')
+                #print(self.y)
+            #print(self.timer)
                 
                 
 
