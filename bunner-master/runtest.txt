@@ -1,0 +1,803 @@
+Python 3.8.6 (tags/v3.8.6:db45529, Sep 23 2020, 15:52:53) [MSC v.1927 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+>>> 
+= RESTART: C:\Users\docto\Desktop\AI4Games-2020-Code-the-Classics\bunner-master\bunner.py
+pygame 1.9.6
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Road
+Road
+Road
+Road
+Road
+Road
+Road
+Road
+Road
+Road
+Road
+Rail
+Rail
+Rail
+Rail
+Dirt
+Dirt
+Dirt
+Dirt
+Dirt
+Road
+Road
+Road
+Road
+Road
+Road
+grass
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 1
+test 2
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1280.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1320.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1320.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+grass
+grass
+Self Y: -1400.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1400.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1440.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+Self Y: -1440.0 Hedge Y: 0.0
+test 3
+test 4
+grass
+grass

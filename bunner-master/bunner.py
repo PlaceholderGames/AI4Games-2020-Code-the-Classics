@@ -149,9 +149,9 @@ class Bunner(MyActor):
                 return
     
     def update(self):
-        print(self.x)
+       # print(self.x)      # *** turned this off as it isn't really helping now
         current_row = None
-        check_row = None
+        check_row = False   # *** Should be False, not None really, although it doesn't really make a difference
         next_row = None
         
         logCheck = self.MOVE_DISTANCE
@@ -175,12 +175,17 @@ class Bunner(MyActor):
             #print(next_row.index)
             if next_state == PlayerState.ALIVE:
                 
-                if type(row).__name__ == "Grass":
+                if type(row).__name__ == "Grass": # *** should this be next_row, as row is set in a for loop and is unstable
                     self.input_queue.append(0)
                     print("grass")
-                    print(self.x)
+                    # print(self.x) # *** turned this off for now
                     for hedge in row.children:
-                        if self.y < hedge.y: 
+                        print('Self Y: ' + str(self.y) + ' Hedge Y: ' + str(hedge.y))
+                        # *** My worry is you have the code the wrong way round
+                        # *** and it should be checking X values instead
+
+                        if self.y < hedge.y:
+                        # *** This will always be true, as it is the next row isn't it?
                             if self.screenCheck == False:
                                 self.input_queue.append(1)                        
                                 print ("test 1")
