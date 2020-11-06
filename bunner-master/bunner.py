@@ -89,7 +89,7 @@ DY = [-4,0,4,0]
 #This here is used to create the AI itself.
 class AI:
     step = 0
-    def __init__(self, size, directions):
+    def __init__(self, size, directions, fini):
         self.size = size
         self.directions = directions
 
@@ -171,6 +171,8 @@ class Bunner(MyActor):
                 # No need to continue searching
                 return
 
+            
+
     def update(self):
         # Check each control direction #This has been changed, this is used for the keys.
        # for direction in range(4):
@@ -181,9 +183,12 @@ class Bunner(MyActor):
        # for direction in range(4):
        
        # This here is what will make the bunny move randomly
-       # self.input_queue.append(randrange(0, 4))
-        self.input_queue.append(0)
-                        
+        self.input_queue.append(randrange(0, 4))
+
+        #This here is what will allow our bunny move forward.
+       # self.input_queue.append(0)
+
+        
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
@@ -195,9 +200,7 @@ class Bunner(MyActor):
 
             land = False
 
-            # This has been added
-         #   if child_obj >= row.y:
-        #        self.input_queue.append(1 or 3)
+            
                 
             if self.timer > 0:
                 # Apply movement
@@ -206,11 +209,68 @@ class Bunner(MyActor):
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
 
+        #This function here is used for creating the finite state machine
+        # to allow the rabbit to check if their is danger up ahead.
+       
+            inCurrent = False
             current_row = None
+            frontRow = None
+
+        # This function here is the finite state machine that is supposed to be used
+        # for dodging the hazards that are littered around the course.
+       # def finite_state_machine(self):
             for row in game.rows:
+                if inCurrent:
+                    frontRow = row
+                        # This if statement is used to allow the character to move left or right
+                        # when a car is right in front of them.
+                    if row.y == "Car":
+                        self.input_queue.append(1 or 3)
+                    # This if else statement is used to allow the character to move forward
+                    # when the view of the road is in front of them.
+                    elif row.y == "Road":
+                        self.input_queue.append(0)
+                    # This if else statement is used to allow the character to move forward
+                    # when grass is in front of them
+                    elif row.y == "Grass":
+                        self.input_queue.append(0)
+                    # This if else statement is used to allow the character to move left or right
+                    # when the lake is in front of them
+                    elif row.y == "Lake":
+                        self.input_queue.append(1 or 3)
+                    # This if else statement is used to allow the character to move left or right
+                    # when the train is in front of them
+                    elif row.y == "Train":
+                        self.input_queue.append(1 or 3)
+                    # This if else statement is used to allow the character to move forward
+                    # when the logs is in front of them
+                    elif row.y == "Logs":
+                        self.input_queue.append(0)
+                        
+                    break
+
+        #This funtion here is used to create the A star algorithm in order for
+        # the rabbit to navigate throught the maze.
+        #def A_star_algorithm(self):
+           # child = []
+
+           # This if statement here was used to try and get the rabbit to navigate though
+           # the maze, the idea was that hich ever position the rabbit was in where ever was closest
+           # to a gap in the hedge the rabbit would autimatically go their so that it could go through it.
+           # if frontRow[0] > (mask = i)
+           #     direction < i
+           #    self.input_queue.append(0 or 1 or 3)
+                        
                 if row.y == self.y:
                     current_row = row
+                    inCurrent = True
                     break
+
+           # if frontRow:
+            #    suggested_state, suggested_obj_y_offset
+
+                
+
 
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
@@ -222,6 +282,9 @@ class Bunner(MyActor):
                 # hit by a car the Y offset is zero, but if they are hit by a train the returned offset is 8 as this
                 # positioning looks a little better.
                 self.state, dead_obj_y_offset = current_row.check_collision(self.x)
+
+                #if frontRow:
+                 #   self.state, dead_obj_y_offset = next_row.check_collision(self.y)
                 if self.state == PlayerState.ALIVE:
                     # Water rows move the player along the X axis, if standing on a log
                     self.x += current_row.push()
@@ -340,7 +403,7 @@ class Row(MyActor):
         for child_obj in self.children:
             if x >= child_obj.x - (child_obj.width / 2) - margin and x < child_obj.x + (child_obj.width / 2) + margin:
                 return child_obj
-
+        
         return None
 
     def push(self):
