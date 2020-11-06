@@ -167,7 +167,7 @@ class Bunner(MyActor):
         if next_row:
             next_state, next_obj_y_offset = next_row.check_collision(self.x)
             #grass = isinstance(current_row.index,Grass)
-           # dirt = isinstance(current_row.index,Dirt)
+            #dirt = isinstance(current_row.index,Dirt)
             #water = isinstance(current_row.index,Water)
             #road = isinstance(current_row.index,Road)
             #pavement = isinstance(current_row.index,Pavement)
@@ -180,20 +180,16 @@ class Bunner(MyActor):
                     print("grass")
                     for hedge in row.children:
                         if self.y < hedge.y:
-                            
-                            if self.x <= 440:
+                            if self.x >= 240:
                                 self.input_queue.append(3)                        
                                 print ("break 1")
-                                if self.x >= 440:
-                                    screenCheck = True
                                 break
-                                    
-                            elif screenCheck == True:
+                            elif self.x <= 239:
                                 self.input_queue.append(1)
                                 print ("break 2")
-                                if self.x <= 40:
-                                    screenCheck = False 
                                 break
+                            
+                            
 
                 elif type(row).__name__ == "Dirt":
                     self.input_queue.append(0)
@@ -211,8 +207,8 @@ class Bunner(MyActor):
                     print("Pavement")
                     
                 elif type(row).__name__ == "Rail":
-                        self.input_queue.append(0)
-                        print("Rail")
+                    self.input_queue.append(0)
+                    print("Rail")
                 
             elif next_state == PlayerState.SPLASH:
                 wait()
