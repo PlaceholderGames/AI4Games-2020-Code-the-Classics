@@ -91,6 +91,7 @@ class Bunner(MyActor):
         self.state = PlayerState.ALIVE
         self.direction = 2
         self.timer = 0
+        self.checked_hedges = False
         
 
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
@@ -152,12 +153,34 @@ class Bunner(MyActor):
             
 
             if next_row:
-                self.state, dead_obj_y_offset = next_row.check_collision(self.x)
+                self.state, dead_obj_y_offset = next_row.check_next_collision(self.x)
                 print('State: ' + str(self.state) + ' Y Offset: ' + str(dead_obj_y_offset))
                 if self.state == PlayerState.ALIVE:
+                    
+                    if type(next_row).__name__ == "Grass":
+                        for hedge in next_row.children:
+                            print('self X: ' + str(self.x) + ' Hedge X: ' + str(hedge.x))
+                            if self.y < hedge.y:
+                                if self.checked_hedges == False:
+                                    self.handle_input(1)
+                                    if self.x >= 400:
+                                        self.checked_hedges = True
+                                        self.handle_input(3)
+                                        break
+                                    else:
+                                        break
+                                else:
+                                    self.handle_input(3)
+                                    if self.x <= 60:
+                                        self.checked_hedges = False
+                                        break
+                                    else:
+                                        break
                     self.handle_input(self.input_queue.pop(0))
-                else:
-                    self.state = PlayerState.ALIVE
+                #else:
+                    #self.handle_input(1)
+
+                self.state = PlayerState.ALIVE
 
             land = False
             if self.timer > 0:
@@ -526,6 +549,14 @@ class Water(ActiveRow):
             game.play_sound("splash")
             return PlayerState.SPLASH, 0
 
+    def check_next_collision(self, x):
+        # If we're colliding with a log, that's a good thing!
+        # margin of -4 ensures we can't stand right on the edge of a log
+        if self.collide(x, -4):
+            return PlayerState.ALIVE, 0
+        else:
+            return PlayerState.SPLASH, 0
+
     def play_sound(self):
         game.play_sound("log", 1)
 
@@ -570,6 +601,12 @@ class Road(ActiveRow):
     def check_collision(self, x):
         if self.collide(x):
             game.play_sound("splat", 1)
+            return PlayerState.SPLAT, 0
+        else:
+            return PlayerState.ALIVE, 0
+
+    def check_next_collision(self, x):
+        if self.collide(x):
             return PlayerState.SPLAT, 0
         else:
             return PlayerState.ALIVE, 0
@@ -646,6 +683,12 @@ class Rail(Row):
     def check_collision(self, x):
         if self.index == 2 and self.predecessor.collide(x):
             game.play_sound("splat", 1)
+            return PlayerState.SPLAT, 8     # For the meaning of the second return value, see comments in Bunner.update
+        else:
+            return PlayerState.ALIVE, 0
+
+    def check_next_collision(self, x):
+        if self.index == 2 and self.predecessor.collide(x):
             return PlayerState.SPLAT, 8     # For the meaning of the second return value, see comments in Bunner.update
         else:
             return PlayerState.ALIVE, 0
