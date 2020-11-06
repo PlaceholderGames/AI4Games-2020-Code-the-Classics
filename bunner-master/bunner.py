@@ -214,9 +214,9 @@ class Bunner(MyActor):
                                 
 
                 elif rowCheck == "Dirt":
-                    #if self.stepOnDirt == False:
-                     #   self.input_queue.append(0)
-                      #  self.stepOnDirt = True
+                    if self.stepOnDirt == False:
+                        self.input_queue.append(0)
+                        self.stepOnDirt = True
                     self.input_queue.append(0)
                     print("Dirt")
 
@@ -279,7 +279,7 @@ class Bunner(MyActor):
                     #print("hello")
                 self.state, dead_obj_y_offset = current_row.check_collision(self.x)
                 if self.state == PlayerState.ALIVE:
-                    #if type(row).__name__ == "Pavement":
+                    #if rowCheck == "Pavement":
                     #    print("Pavement")
                      #   if self.x < 230 or self.x > 250:
                       #      if self.x < 230:
@@ -288,17 +288,17 @@ class Bunner(MyActor):
                          #       self.input_queue.append(3)
                         #elif self.x >= 230 and self.x <= 250:
                          #   self.input_queue.append(0)
-                          #  self.stepOnPavement = False
+                            #self.stepOnPavement = False
                             
-                    #elif type(row).__name__ == "Dirt":
-                     #   if self.x < 230 or self.x > 250:
-                      #      if self.x < 230:
-                       #         self.input_queue.append(1)
-                        #    if self.x > 250:
-                         #       self.input_queue.append(3)
-                        #elif self.x >= 230 and self.x <= 250:
-                         #   self.input_queue.append(0)
-                          #  self.stepOnDirt = False
+                    if rowCheck == "Dirt":
+                        if self.x < 230 or self.x > 250:
+                            if self.x < 230:
+                                self.input_queue.append(1)
+                            if self.x > 250:
+                                self.input_queue.append(3)
+                        elif self.x >= 230 and self.x <= 250:
+                            self.input_queue.append(0)
+                            self.stepOnDirt = False
 
 
                     self.x += current_row.push()
