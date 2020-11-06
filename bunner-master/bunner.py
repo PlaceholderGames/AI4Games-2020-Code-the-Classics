@@ -89,10 +89,9 @@ class Bunner(MyActor):
         super().__init__("blank", pos)
 
         self.state = PlayerState.ALIVE
-        self.next_state = PlayerState.ALIVE
         self.direction = 2
         self.timer = 0
-        self.pos_ahead = self.y + 40
+        
 
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
@@ -128,27 +127,38 @@ class Bunner(MyActor):
             #if log.y == self.y + Bunner.MOVE_DISTANCE * DY[dir]:
                 #self.input_queue.append(randrange(0))
             #return
-        
-        self.next_state = PlayerState.ALIVE
  
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
-
+            
+            
+            current_found = False
+            current_row = None
             next_row = None
+
+            
             for row in game.rows:
-                if row.y == self.pos_ahead:
+                if current_found:
                     next_row = row
+                    print('next row.y:' + str(row.y))
                     break
 
+                if row.y == self.y:
+                    current_row = row
+                    current_found = True
+                    print('current row.y:' + str(row.y))
+
+            
+
             if next_row:
-                self.next_state, dead_obj_y_offset = next_row.check_collision(self.pos_ahead)
-                print (self.next_state)
-                if self.next_state == PlayerState.ALIVE:
-                    # Are we on the ground, and are there inputs to process?
-                    if self.timer == 0 and len(self.input_queue) > 0:
-                        # Take the next input off the queue and process it
-                        self.handle_input(self.input_queue.pop(0))
+                self.state, dead_obj_y_offset = next_row.check_collision(self.x)
+                print('State: ' + str(self.state) + ' Y Offset: ' + str(dead_obj_y_offset))
+                if self.state == PlayerState.ALIVE:
+                    self.handle_input(self.input_queue.pop(0))
+                else:
+                    self.state = PlayerState.ALIVE
+
             land = False
             if self.timer > 0:
                 # Apply movement
@@ -156,13 +166,11 @@ class Bunner(MyActor):
                 self.y += DY[self.direction]
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
-                self.pos_ahead = self.y + 40
-                    
-            current_row = None
-            for row in game.rows:
-                if row.y == self.y:
-                    current_row = row
-                    break
+                print('Move')
+                print(self.y)
+            print(self.timer)
+                
+                
 
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
