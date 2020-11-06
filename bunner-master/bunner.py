@@ -125,7 +125,7 @@ class Bunner(MyActor):
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
         self.cc = None
-
+        self.screenCheck = False
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
         self.min_y = self.y
@@ -153,7 +153,7 @@ class Bunner(MyActor):
         current_row = None
         check_row = None
         next_row = None
-        screenCheck = False
+        
         logCheck = self.MOVE_DISTANCE
         for row in game.rows:
             if check_row:
@@ -178,18 +178,30 @@ class Bunner(MyActor):
                 if type(row).__name__ == "Grass":
                     self.input_queue.append(0)
                     print("grass")
+                    print(self.x)
                     for hedge in row.children:
-                        if self.y < hedge.y:
-                            if self.x >= 240:
-                                self.input_queue.append(3)                        
-                                print ("break 1")
-                                break
-                            elif self.x <= 239:
-                                self.input_queue.append(1)
-                                print ("break 2")
-                                break
-                            
-                            
+                        if self.y < hedge.y: 
+                            if self.screenCheck == False:
+                                self.input_queue.append(1)                        
+                                print ("test 1")
+                                if self.x >= 400:
+                                    print ("test 2")
+                                    self.screenCheck = True
+                                    self.input_queue.append(3)
+                                    break
+                                else:
+                                    break
+
+                            elif self.screenCheck == True:
+                                self.input_queue.append(3)
+                                print ("test 3")
+                                if self.x <= 60:
+                                    print ("test 4")
+                                    screenCheck = False
+                                    break
+                                else:
+                                    break
+                                
 
                 elif type(row).__name__ == "Dirt":
                     self.input_queue.append(0)
