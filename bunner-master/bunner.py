@@ -89,7 +89,7 @@ DY = [-4,0,4,0]
 #This here is used to create the AI itself.
 class AI:
     step = 0
-    def __init__(self, size, directions, fini):
+    def __init__(self, size, directions):
         self.size = size
         self.directions = directions
 
@@ -111,46 +111,7 @@ class Bunner(MyActor):
 
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
-        self.min_y = self.y
-
-        #self.size = size
-        #self.brain = brain
-        #self.randomize()
-    #def randomize(self):
-     #   for i in range(0, self.tests):
-      #      directions = []
-       #     for z in range(0, self.size):
-        #        randomNum = random.randint(0, 4)
-         #       directions.append(randomNum)
-
-          #  b = Brain(1000, direction)
-
-    #Update bunner position
-    #def update(self):
-     #   numMoves = self.brain.step
-      #  if numMoves < self.size and self.dead == False:
-       #     if self.brain.direction[numMoves] == 0:
-        #        self.rect.y -= 10
-         #       self.step += 1 # this has been replaced from fitness.
-                #The self.rect is the length of the screen.
-          #  elif self.brain.direction[numMoves] == 1 and self.rect.y > 10:
-           #     self.rect.y += 25
-            #    self.step += 1
-            #elif self.brain.direction[numMoves] == 1 and self.rect.x > 10:
-             #   self.rect.x -= 25
-            #elif self.brain.direction[numMoves] == 1 and self.rect.x < 470:
-             #   self.rect.x += 25
-
-            #self.brain.step += 1
-
-        #This is for if the rabbit is crossing the river.
-        #if self.rect.y <= 175 and self.rect.y != 50 and self.dead == False:
-           # onlog = False
-           # for x in all_sprites:
-             #   if x.rect.colliderect(self):
-                 #   onLog = True
-                  #  break
-        
+        self.min_y = self.y        
 
 
     def handle_input(self, dir):
@@ -251,16 +212,20 @@ class Bunner(MyActor):
 
         #This funtion here is used to create the A star algorithm in order for
         # the rabbit to navigate throught the maze.
-        #def A_star_algorithm(self):
-           # child = []
-
+        #def A_star_algorithm(self, start, end):
+            # self.start = start
+            # self.end = end
+            
            # This if statement here was used to try and get the rabbit to navigate though
-           # the maze, the idea was that hich ever position the rabbit was in where ever was closest
+           # the maze, the idea was that which ever position the rabbit was in where ever was closest
            # to a gap in the hedge the rabbit would autimatically go their so that it could go through it.
-           # if frontRow[0] > (mask = i)
-           #     direction < i
-           #    self.input_queue.append(0 or 1 or 3)
-                        
+            # while active row.start = grass # This here was used for when the rabbit was on the grass
+            # they would check for the hedge.
+               # if frontRow[0] > (mask = i)
+               #     direction < i
+               #    self.input_queue.append(0 or 1 or 3)
+                # if row.end = grass
+                #   break
                 if row.y == self.y:
                     current_row = row
                     inCurrent = True
