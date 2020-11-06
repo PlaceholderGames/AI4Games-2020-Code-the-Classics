@@ -163,6 +163,7 @@ class Bunner(MyActor):
             if row.y == self.y:               
                 current_row = row
                 check_row = True
+        rowCheck = type(next_row).__name__
                 
                     
         if next_row:
@@ -176,20 +177,21 @@ class Bunner(MyActor):
             #print(next_row.index)
             if next_state == PlayerState.ALIVE:
                 
-                if type(row).__name__ == "Grass": # *** should this be next_row, as row is set in a for loop and is unstable
+                if rowCheck == "Grass": # *** should this be next_row, as row is set in a for loop and is unstable
                     self.input_queue.append(0)
                     print("grass")
                     # print(self.x) # *** turned this off for now
                     for hedge in row.children:
-                        print('Self Y: ' + str(self.y) + ' Hedge Y: ' + str(hedge.y))
+                        print('Self Y: ' + str(self.x) + ' Hedge Y: ' + str(hedge.x))
                         # *** My worry is you have the code the wrong way round
                         # *** and it should be checking X values instead
 
-                        if self.y < hedge.y:
+                        if self.x < hedge.x or self.x > hedge.x:
                         # *** This will always be true, as it is the next row isn't it?
                             if self.screenCheck == False:
                                 self.input_queue.append(1)                        
                                 print ("test 1")
+
                                 if self.x >= 400:
                                     print ("test 2")
                                     self.screenCheck = True
@@ -203,34 +205,35 @@ class Bunner(MyActor):
                                 print ("test 3")
                                 if self.x <= 60:
                                     print ("test 4")
-                                    screenCheck = False
+                                    self.cc = False
+                                    self.screenCheck = False
                                     break
                                 else:
                                     break
                                 
 
-                elif type(row).__name__ == "Dirt":
+                elif rowCheck == "Dirt":
                     #if self.stepOnDirt == False:
                      #   self.input_queue.append(0)
                       #  self.stepOnDirt = True
                     self.input_queue.append(0)
                     print("Dirt")
 
-                elif type(row).__name__ == "Water":
+                elif rowCheck == "Water":
                     self.input_queue.append(0)
                     
-                elif type(row).__name__ == "Road":
+                elif rowCheck == "Road":
                     self.input_queue.append(0)
                     print("Road")
                     
-                elif type(row).__name__ == "Pavement":
+                elif rowCheck == "Pavement":
                     #if self.stepOnPavement == False:
                      #   self.input_queue.append(0)
                       #  self.stepOnPavement = True
                     self.input_queue.append(0)
                     print("Pavement")
                     
-                elif type(row).__name__ == "Rail":
+                elif rowCheck == "Rail":
                     self.input_queue.append(0)
                     print("Rail")
                 
