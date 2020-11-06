@@ -269,13 +269,13 @@ class Bunner(MyActor):
             # Are we on the ground, and are there inputs to process?
 
             if self.timer == 0 and len(self.input_queue) > 0:
-                print ('Length of string: ' + str (len(self.input_queue)))
+                #print ('Length of string: ' + str (len(self.input_queue)))
                 #inputCheck = False
-                if len(self.input_queue) > 10:
-                    self.input_queue.pop(0)
-                else:
+                #if len(self.input_queue) > 10:
+                    #self.input_queue.pop(0)
+                #else:
                 # Take the next input off the queue and process it
-                    self.handle_input(self.input_queue.pop(0))
+                self.handle_input(self.input_queue.pop(0))
 
             land = False
             if self.timer > 0:
