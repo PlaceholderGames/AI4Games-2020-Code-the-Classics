@@ -124,7 +124,8 @@ class Bunner(MyActor):
         self.dirtCheck = True
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
-        self.cc = None
+        self.stepOnPavement = False
+        self.stepOnDirt = False
         self.screenCheck = False
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
@@ -204,6 +205,9 @@ class Bunner(MyActor):
                                 
 
                 elif type(row).__name__ == "Dirt":
+                    #if self.stepOnDirt == False:
+                     #   self.input_queue.append(0)
+                      #  self.stepOnDirt = True
                     self.input_queue.append(0)
                     print("Dirt")
 
@@ -215,6 +219,9 @@ class Bunner(MyActor):
                     print("Road")
                     
                 elif type(row).__name__ == "Pavement":
+                    #if self.stepOnPavement == False:
+                     #   self.input_queue.append(0)
+                      #  self.stepOnPavement = True
                     self.input_queue.append(0)
                     print("Pavement")
                     
@@ -263,12 +270,28 @@ class Bunner(MyActor):
                     #print("hello")
                 self.state, dead_obj_y_offset = current_row.check_collision(self.x)
                 if self.state == PlayerState.ALIVE:
-                    #if type(row).__name__ == "Rail":
-                        #if game.trainSound == True:
-                            #print("train sound")
-                            #wait()
-                        #else:
-                            #print("Rail")
+                    #if type(row).__name__ == "Pavement":
+                    #    print("Pavement")
+                     #   if self.x < 230 or self.x > 250:
+                      #      if self.x < 230:
+                       #         self.input_queue.append(1)
+                        #    if self.x > 250:
+                         #       self.input_queue.append(3)
+                        #elif self.x >= 230 and self.x <= 250:
+                         #   self.input_queue.append(0)
+                          #  self.stepOnPavement = False
+                            
+                    #elif type(row).__name__ == "Dirt":
+                     #   if self.x < 230 or self.x > 250:
+                      #      if self.x < 230:
+                       #         self.input_queue.append(1)
+                        #    if self.x > 250:
+                         #       self.input_queue.append(3)
+                        #elif self.x >= 230 and self.x <= 250:
+                         #   self.input_queue.append(0)
+                          #  self.stepOnDirt = False
+
+
                     self.x += current_row.push()
                         #else:
                             #self.input_queue.append(0)
