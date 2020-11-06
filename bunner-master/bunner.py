@@ -24,7 +24,7 @@ WIDTH = 480
 HEIGHT = 800
 TITLE = "Infinite Bunner"
 
-
+global check_hedge
 ROW_HEIGHT = 40
 
 # See what happens when you change this to True
@@ -121,9 +121,10 @@ class Bunner(MyActor):
 
         self.direction = 2
         self.timer = 0
-
+        self.dirtCheck = True
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
+        self.cc = None
 
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
@@ -146,51 +147,71 @@ class Bunner(MyActor):
 
                 # No need to continue searching
                 return
-
+    
     def update(self):
+        print(self.x)
         current_row = None
         check_row = None
         next_row = None
+        inputCheck = False
+        logCheck = self.MOVE_DISTANCE
         for row in game.rows:
-            #print(row)
             if check_row:
                 next_row = row
-                #print('Next row.y1: ' + str(row))
                 break
             if row.y == self.y:               
                 current_row = row
                 check_row = True
-                #print('Next row.y2: ' + str(row))
-                print (self.y)
                 
                     
-        if next_row:  
+        if next_row:
             next_state, next_obj_y_offset = next_row.check_collision(self.x)
+            #grass = isinstance(current_row.index,Grass)
+           # dirt = isinstance(current_row.index,Dirt)
+            #water = isinstance(current_row.index,Water)
+            #road = isinstance(current_row.index,Road)
+            #pavement = isinstance(current_row.index,Pavement)
+            #rail = isinstance(current_row.index,Rail)
+            #print(next_row.index)
             if next_state == PlayerState.ALIVE:
-           #if current_row == [Grass(None, 0, 0)]:
-               self.input_queue.append(0)
-                #if Grass.allow_movement == PlayerState.HEDGE:
-                    #self.input_queue.append(1)
+                
+                if type(row).__name__ == "Grass":
+                    self.input_queue.append(0)
+                    print("grass")
+                    for hedge in row.children:
+                        if self.y < hedge.y:
+                            if self.x >= 240:
+                                self.input_queue.append(3)                        
+                                print ("break 1")
+                                break
+                            elif self.x <= 239:
+                                self.input_queue.append(1)
+                                print ("break 2")
+                                break
+
+                elif type(row).__name__ == "Dirt":
+                    self.input_queue.append(0)
+                    print("Dirt")
+
+                elif type(row).__name__ == "Water":
+                    self.input_queue.append(0)
+                    
+                elif type(row).__name__ == "Road":
+                    self.input_queue.append(0)
+                    print("Road")
+                    
+                elif type(row).__name__ == "Pavement":
+                    self.input_queue.append(0)
+                    print("Pavement")
+                    
+                elif type(row).__name__ == "Rail":
+                        self.input_queue.append(0)
+                        print("Rail")
+                
             elif next_state == PlayerState.SPLASH:
                 wait()
             elif next_state == PlayerState.SPLAT:
                 wait()
-            #elif Grass.hedge_row_index != NONE:
-                #self.input_queue.append(1)
-                #self.input_queue.append(1)
-            #else:
-                #self.input_queue.append(2)
-            #for direction in range(4):
-                #self.input_queue.append(2)                    
-        #move = (randint(0, 3))
-            #if ai() == 0:
-               # self.input_queue.append(ai)
-           # elif ai() == 1:
-              #  self.input_queue.append(1)
-           # elif ai() == 2:
-             #   self.input_queue.append(2)
-           # elif ai() == 3:
-             #   self.input_queue.append(3)
 
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
@@ -198,6 +219,10 @@ class Bunner(MyActor):
 
             # Are we on the ground, and are there inputs to process?
             if self.timer == 0 and len(self.input_queue) > 0:
+                #inputCheck = False
+                #if len(self.input_queue) > 10:
+                    #self.input_queue.pop(0)
+                #else:
                 # Take the next input off the queue and process it
                 self.handle_input(self.input_queue.pop(0))
 
@@ -224,12 +249,21 @@ class Bunner(MyActor):
                     #print("hello")
                 self.state, dead_obj_y_offset = current_row.check_collision(self.x)
                 if self.state == PlayerState.ALIVE:
-                    # Water rows move the player along the X axis, if standing on a log
+                    #if type(row).__name__ == "Rail":
+                        #if game.trainSound == True:
+                            #print("train sound")
+                            #wait()
+                        #else:
+                            #print("Rail")
                     self.x += current_row.push()
+                        #else:
+                            #self.input_queue.append(0)
+                        
 
                     if land:
                         # Just landed - play sound effect appropriate to the current row
                         current_row.play_sound()
+                    
                 else:
                     if self.state == PlayerState.SPLAT:
                         # Add 'splat' graphic to current row with the specified position and Y offset
@@ -496,8 +530,7 @@ class Grass(Row):
         # allow_movement in the base class ensures that the player can't walk off the left and right sides of the
         # screen. The call to our own collide method ensures that the player can't walk through hedges. The margin of
         # 8 prevents the player sprite from overlapping with the edge of a hedge.
-        return super().allow_movement(x) and not self.collide(x, 8)
-    
+        return super().allow_movement(x) and not self.collide(x, 8)   
 
     def play_sound(self):
         game.play_sound("grass", 1)
@@ -696,6 +729,7 @@ class Rail(Row):
                 dx = choice([-20, 20])
                 self.children.append(Train(dx, (WIDTH + 1000 if dx < 0 else -1000, -13)))
                 game.play_sound("bell")
+                game.trainSound = True
                 game.play_sound("train", 2)
 
     def check_collision(self, x):
@@ -704,7 +738,8 @@ class Rail(Row):
             return PlayerState.SPLAT, 8     # For the meaning of the second return value, see comments in Bunner.update
         else:
             return PlayerState.ALIVE, 0
-
+        
+        
     def play_sound(self):
         game.play_sound("grass", 1)
 
@@ -740,7 +775,7 @@ class Game:
         self.rows = [Grass(None, 0, 0)]
 
         self.scroll_pos = -HEIGHT
-
+        self.trainSound = False
     def update(self):
         if self.bunner:
             # Scroll faster if the player is close to the top of the screen. Limit scroll speed to
@@ -869,6 +904,9 @@ class Game:
         except:
             # If sound system is not working/present, ignore the error
             pass
+        
+        def soundCheck(self):
+                return trainSound
 
 #-----------------------------------------------------------------------------------------------------------------
 # Dictionary to keep track of which keys are currently being held down
