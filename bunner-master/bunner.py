@@ -127,6 +127,8 @@ class Bunner(MyActor):
         self.stepOnPavement = False
         self.stepOnDirt = False
         self.screenCheck = False
+        self.updateCounter = 1
+        self.stepOnLog = True
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
         self.min_y = self.y
@@ -178,56 +180,68 @@ class Bunner(MyActor):
             if next_state == PlayerState.ALIVE:
                 
                 if rowCheck == "Grass": # *** should this be next_row, as row is set in a for loop and is unstable
-                    self.input_queue.append(0)
                     print("grass")
+                    self.stepOnLog = True
                     # print(self.x) # *** turned this off for now
-                    for hedge in row.children:
-                        print('Self Y: ' + str(self.x) + ' Hedge Y: ' + str(hedge.x))
-                        # *** My worry is you have the code the wrong way round
-                        # *** and it should be checking X values instead
-                        
-                        #will always be true but for now it doesnt matter until the input bug gets fixed
-                        if self.x <= hedge.x or self.x > hedge.x: #Tried to use equal to hedge.x but bunny moves in 10's whilst hedge is mad in 40's + logs can offset bunny's x pos so it very unlikely they'll ever be the same even if the bunny is hitting the wall
-                        # *** This will always be true, as it is the next row isn't it?
+                    #if self.updateCounter <= 0:
+                    if next_row.collide(self.x, 5):
+                        for hedge in next_row.children:
+                            #print('Self Y: ' + str(self.x) + ' Hedge Y: ' + str(hedge.x))
+                            
                             if self.screenCheck == False:
-                                self.input_queue.append(1)                        
-                                print ("test 1")
+                                self.input_queue.append(0)
+                                self.input_queue.append(1)
+                                #print ("test 1")
 
-                                if self.x >= 400:
-                                    print ("test 2")
+                                if self.x >= 410:
+                                    #print ("test 2")
                                     self.screenCheck = True
+                                    self.input_queue.append(0)
                                     self.input_queue.append(3)
                                     break
+                                    
                                 else:
                                     break
 
                             elif self.screenCheck == True:
+                                self.input_queue.append(0)
                                 self.input_queue.append(3)
-                                print ("test 3")
+                                #print ("test 3")
+                                    
                                 if self.x <= 60:
-                                    print ("test 4")
+                                    #print ("test 4")
+                                    #self.input_queue.clear()
                                     self.cc = False
                                     self.screenCheck = False
                                     break
+                                    
                                 else:
                                     break
+                    else:
+                        self.input_queue.clear()
+                        self.input_queue.append(0)
                                 
 
                 elif rowCheck == "Dirt":
-                    if self.stepOnDirt == False:
-                        self.input_queue.append(0)
-                        self.stepOnDirt = True
+                    self.stepOnLog = True
+                    #if self.stepOnDirt == False:
+                       # self.input_queue.append(0)
+                        #self.stepOnDirt = True
                     self.input_queue.append(0)
                     print("Dirt")
 
                 elif rowCheck == "Water":
+                    self.stepOnLog = False
+                    self.input_queue.clear()
                     self.input_queue.append(0)
                     
                 elif rowCheck == "Road":
+                    self.stepOnLog = True
                     self.input_queue.append(0)
                     print("Road")
                     
                 elif rowCheck == "Pavement":
+                    self.stepOnLog = True
                     #if self.stepOnPavement == False:
                      #   self.input_queue.append(0)
                       #  self.stepOnPavement = True
@@ -235,11 +249,24 @@ class Bunner(MyActor):
                     print("Pavement")
                     
                 elif rowCheck == "Rail":
+                    self.stepOnLog = True
                     self.input_queue.append(0)
                     print("Rail")
                 
             elif next_state == PlayerState.SPLASH:
-                wait()
+                if self.stepOnLog == True:
+                    for log in next_row.children:
+                        self.input_queue.clear()
+                        if self.x < log.x:
+                            print("waterTest2")
+                            self.input_queue.append(1)
+                            break
+
+                        elif self.x > log.x:
+                            print("waterTest3")
+                            self.input_queue.append(3)
+                            break
+                        
             elif next_state == PlayerState.SPLAT:
                 wait()
 
@@ -248,6 +275,9 @@ class Bunner(MyActor):
             # the ground. If it's above zero, they're currently jumping to a new location.
 
             # Are we on the ground, and are there inputs to process?
+            if self.updateCounter == 3:
+                self.updateCounter = 0
+
             if self.timer == 0 and len(self.input_queue) > 0:
                 print ('Length of string: ' + str (len(self.input_queue)))
                 #inputCheck = False
@@ -265,7 +295,9 @@ class Bunner(MyActor):
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
                     
-
+            self.updateCounter - 1
+            if self.updateCounter < 0:
+                self.updateCounter = 4
             
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
@@ -291,15 +323,16 @@ class Bunner(MyActor):
                          #   self.input_queue.append(0)
                             #self.stepOnPavement = False
                             
-                    if rowCheck == "Dirt":
-                        if self.x < 230 or self.x > 250:
-                            if self.x < 230:
-                                self.input_queue.append(1)      
-                            elif self.x > 250:
-                                self.input_queue.append(3)
-                        elif self.x >= 230 and self.x <= 250:
-                            self.input_queue.append(0)
-                            self.stepOnDirt = False
+                    #if rowCheck == "Dirt":
+                        #if self.x < 230 or self.x > 250:
+                          #  if self.x < 230:
+                            #    self.input_queue.append(1)      
+                           # elif self.x > 250:
+                              #  self.input_queue.append(3)
+                       # elif self.x >= 230 and self.x <= 250:
+                          #  self.input_queue.append(0)
+                         #   self.stepOnDirt = False
+                       # self.input_queue.clear()
 
 
                     self.x += current_row.push()
