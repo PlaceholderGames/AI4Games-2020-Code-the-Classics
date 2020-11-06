@@ -84,6 +84,7 @@ DY = [-4,0,0,4]
 
 class Bunner(MyActor):
     MOVE_DISTANCE = 10
+    
 
     def __init__(self, pos):
         super().__init__("blank", pos)
@@ -125,78 +126,7 @@ class Bunner(MyActor):
                 self.input_queue.append(jumpDirection)
                 
       
-        jumpDirection = 0
         
-        logOffset = 10
-        carOffset = 60
-        trainOffset = 160
-        moveBool = False
-        
-
-        myRow =None
-        nextRow = None
-        myFound = None
-
-        for row in game.rows:
-            if myFound:
-                nextRow = row
-                break
-            if row.y == self.y:
-                myRow = row
-                myFound = True
-       
-        
-        nextRowType = type(nextRow).__name__
-        
-        if nextRowType == "Water":
-            for child in row.children:
-                if child.x - logOffset <= self.x and child.x + logOffset >= self.x:
-                    print ("jump pls")
-                    jumpDirection = 0
-                else:
-                    print ("dont jump")
-                    jumpDirection = randrange(1,3)
-                                
-            
-                                            
-        elif nextRowType == "Road":
-            for child in row.children:
-                if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
-                    print ("jump!")
-                    jumpDirection = 0
-                               
-                else:
-                    print ("stop")
-                    jumpDirection = randrange(1,3)
-                               
-
-                                            
-        elif nextRowType == "Rail":
-            for child in row.children:
-                if child.x + trainOffset <= self.x or child.x - trainOffset >= self.x:
-                    print ("cross track")
-                    jumpDirection = 0
-                                
-                              
-                else:
-                    print ("wait for train")
-                    jumpDirection = randrange(1,3)
-                              
-
-                                             
-        elif nextRowType =="Grass":
-            for child in row.children:
-                if child.x == self.x:
-                    jumpDirection = randrange(1,3)
-                               
-                else:
-                    jumpDirection = 0
-
-                                                  
-        else:        
-            jumpDirection = 0
-                        
-        self.input_queue.append(jumpDirection)  
         
             
             
@@ -218,12 +148,87 @@ class Bunner(MyActor):
                 self.y += DY[self.direction]
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
-
             current_row = None
             for row in game.rows:
                 if row.y == self.y:
                     current_row = row
                     break
+                    
+            jumpDirection = 0
+        
+            logOffset = 10
+            carOffset = 40
+            trainOffset = 160
+            moveBool = False
+
+            lateralCooldown = 0
+
+            myRow =None
+            nextRow = None
+            myFound = None
+
+            for row in game.rows:
+                if myFound:
+                    nextRow = row
+                    break
+                if row.y == self.y:
+                    myRow = row
+                    myFound = True
+           
+            
+            nextRowType = type(nextRow).__name__
+
+            ## When the next row is water, the bunny will run left and right ##
+            ## When a log is in front of the bunny, it will move up the screen ##
+            if nextRowType == "Water":
+                for child in row.children:
+                    if child.x - logOffset <= self.x and child.x + logOffset >= self.x:
+                        print ("jump pls")
+                        jumpDirection = 0
+                    else:
+                        print ("stop at water")
+                        jumpDirection = randrange(1,3)
+                                                   
+                
+            ## When the next row is a road, the bunny will run left and right ##
+            ## When a gap between cars is in front of the bunny, it will move up the screen ##
+            ## It currently does not account for direction of traffic flow ##
+            elif nextRowType == "Road":
+                for child in row.children:
+                    if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
+                        print ("cross road")
+                        jumpDirection = 0         
+                    else:
+                        print ("stop at road")
+                        jumpDirection = randrange(1,3)
+                                   
+
+            ## When the next row is a rail, the bunny will run left and right ##
+            ## When a gap between trains is in front of the bunny, it will move up the screen ##                                     
+            elif nextRowType == "Rail":
+                for child in row.children:
+                    if child.x + trainOffset <= self.x or child.x - trainOffset >= self.x:
+                        print ("cross track")
+                        jumpDirection = 0
+                    else:
+                        print ("wait for train")
+                        jumpDirection = randrange(1,3)
+                                  
+
+            ## When the next row has a hedge, the bunny will run left and right ##
+            ## When a gap in the hedge is in front of the bunny, it will move up the screen ##                                     
+            elif nextRowType == "Grass":
+                for child in row.children:
+                    if child.x + carOffset <= self.x or child.x - carOffset >= self.x:
+                        jumpDirection = randrange(1,3)
+                                   
+                    else:
+                        jumpDirection = 0
+
+                            
+            self.input_queue.append(jumpDirection)  
+
+                
 
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
