@@ -153,7 +153,7 @@ class Bunner(MyActor):
         current_row = None
         check_row = None
         next_row = None
-        inputCheck = False
+        screenCheck = False
         logCheck = self.MOVE_DISTANCE
         for row in game.rows:
             if check_row:
@@ -180,13 +180,19 @@ class Bunner(MyActor):
                     print("grass")
                     for hedge in row.children:
                         if self.y < hedge.y:
-                            if self.x >= 240:
+                            
+                            if self.x <= 440:
                                 self.input_queue.append(3)                        
                                 print ("break 1")
+                                if self.x >= 440:
+                                    screenCheck = True
                                 break
-                            elif self.x <= 239:
+                                    
+                            elif screenCheck == True:
                                 self.input_queue.append(1)
                                 print ("break 2")
+                                if self.x <= 40:
+                                    screenCheck = True 
                                 break
 
                 elif type(row).__name__ == "Dirt":
