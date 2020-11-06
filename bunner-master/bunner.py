@@ -78,6 +78,8 @@ DIRECTION_RIGHT = 1
 DIRECTION_DOWN = 2
 DIRECTION_LEFT = 3
 
+
+
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 
 # X and Y directions indexed into by in_edge and out_edge in Segment
@@ -99,6 +101,8 @@ class Bunner(MyActor):
         self.timer = 0
 
         self.currentRow = -1
+
+        self.iteration = -1
 
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
         self.input_queue = []
@@ -154,40 +158,12 @@ class Bunner(MyActor):
                 if row.y == self.y:
                     current_row = row
                     break
-            #print('Next row.y: ' + str(row.y))
 
-# AI !!!!
-##            current_found = False           # *** Putting in a flag, so we can run once more through the for loop
-##            next_row = None                 # *** We need a new variable :-) to store the next row data
-##            #print('Next row.y: ' + str(row.y))
-##
-##            if current_row.index == 0:
-##            
-##                #current_row.check_collision(self.x)
-##                
-##                self.input_queue.append(DIRECTION_RIGHT)
-##                print("RIGHT")
+## AI STARTS
 
-            #print(str(current_row.index))
-
-
-##            row0 = -320
-##            row1 = row0 - 40
-##
-##            allRows = [-320, -360, 400, ]
-##
-##            self.currentRow += 1
-##
-##            game.rows.child_obj
-##            print(str(game.rows.child_obj))
-
-
+            # rowType is used to check the name of the type of row the bunny will have to navigate
             rowType = type(row).__name__
-            child = None
 
-            self.controllerInput = self.controllerInput + 1
-            
-            
 
             current_found = False # *** Putting in a flag, so we can run once more through the for loop
             next_row = None # *** We need a new variable :-) to store the next row data
@@ -195,123 +171,200 @@ class Bunner(MyActor):
             for row in game.rows:
                 if current_found:
                     next_row = row
-                    # *** print('Next row.y: ' + str(row.y))
                     break
                 if row.y == self.y:
                     current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
                     current_found = True
-                    # *** print('Current row.y: ' + str(row.y))
-                
-            # *** print(self.y)             # *** This gives the absolute y coordinate of the row Bunner is in,
-                                            # *** starting at -320 and going up in decrements of 40; so the next row
-                                            # *** up is -360. So, why start at -320? because y=0 is the bottom row
-                                            # *** of the starting play area on screen.
-                                            
-            # *** Here is where we would do a check for potential collisions, but make sure that the PlayerState is
-            # *** not changed by the collision checks you might do
 
-
-            
+            # Check the next row before moving  
             if next_row:
-                suggested_state, suggested_obj_y_offset = next_row.check_collision(self.x)
 
-                test = str(suggested_state)
+                # The following variables are used to check collisions at different locations of the AI
+                suggested_state_next_row = next_row.check_collision(self.x)
+                suggested_state_last_row = next_row.check_collision(self.x - 40)
+
+
+                # Checks the current rows left and right hand side for collisions
+                suggested_state_current_row_Right = current_row.check_collision(self.x + 40)
+                suggested_state_current_row_Left = current_row.check_collision(self.x -40)
+                suggested_state_current_row_Right2 = current_row.check_collision(self.x + 80)
+                suggested_state_current_row_Left2 = current_row.check_collision(self.x -80)
+
+                # As the rabbit can think a row is clear and move forwards when a car is still too close, extra variables are used
+                # to check most of the space in front of the bunny is safe to move to
+                suggested_state_next_row_side_left = next_row.check_collision(self.x - 40)
+                suggested_state_next_row_side_right = next_row.check_collision(self.x + 40)
+                suggested_state_next_row_side_left2 = next_row.check_collision(self.x - 80)
+                suggested_state_next_row_side_right2 = next_row.check_collision(self.x + 80)
+
+                # Used if the AI needs to go backwards
+                suggested_state_previous_row = next_row.check_collision(self.y + 40)
                 
-                if str(suggested_state) == "SPLAT":
-                    print('State: ' + str(suggested_state) + ' Y Offset: ' + str(suggested_obj_y_offset))
 
-                if (test.find("ALIVE") == -1): 
-                    print("NO")
-		
-                else: 
-                    print("YES")
-                    self.input_queue.append(DIRECTION_UP)
-                    print(test)
+                # In an attempt to make the AI more human and not input too quickly, the following variable is generated every loop
+                # and will only let the action run if 1 has been picked
+                waitInt = randint (1, 3)
 
-                    
-##            for row in game.rows:
-##                if current_found:
-##                    next_row == row
-##                   
-##                if row.y == self.y:
-##                    current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
-##                    current_found = True
-##                    if rowType == "Grass":
-##                        print ("UP x " + str(self.controllerInput))
-##                        self.input_queue.append(DIRECTION_UP)
-##                        # *** print('Next row.y: ' + str(row.y))
-##                        break
-##                        # *** print('Current row.y: ' + str(row.y))
+                # Used for the hedge section
+                pickDirection = randint (1, 2)
+                moveRandomAmount = randint (1, 6)
+                
+                # Check if row type is of type...
+                if rowType == "Grass" or rowType == "Dirt" or rowType == "Pavement":
 
-                    
-##            if row in game.rows:
-##                if rowType == "Grass":
-##                    print ("UP x " + str(self.controllerInput))
-##                    self.input_queue.append(DIRECTION_UP)
-##                    if child in row.children:
-##                        if type(child).__name__ == "Hedge":
-##                            print ("HEDGE")
-##                            self.input_queue.append(DIRECTION_LEFT)
+                    # WAIT
 
-                    
-##                            for child in row.children:
-##                                if child.x - offset <= self.x and child.x + offset >= self.x:
-##                                    print ("DO SOMETHING")
+                    # Check the row in front is clear...
+                    if (str(suggested_state_next_row).find("ALIVE") == -1):
 
-            #print(rows.children)
-##            current_found = False # *** Putting in a flag, so we can run once more through the for loop
-##            next_row = None # *** We need a new variable :-) to store the next row data
+                       # The following lines were designed to stop the AI running into a car in front too early by checking the
+                       # left and right lines in front before moving
+                       # This code made the AI more effective in the cars section but was causing the "Water" state not to work
+                       #(str(suggested_state_next_row_side_right).find("ALIVE") == -1) or \
+                       #(str(suggested_state_next_row_side_right2).find("ALIVE") == -1 or \
+                       #(str(suggested_state_next_row_side_left2).find("ALIVE") == -1)) or \
+                       #(str(suggested_state_next_row).find("ALIVE") == -1):
+
+                        print("Danger ahead!")
+
+                        # Reset the hedge flag
+                        self.iteration = -1
+
+                    # CHECK UP
+                    elif waitInt == 1: 
+                        print("Safe to move!")
+                        self.input_queue.append(DIRECTION_UP)
+
+                        print("UP")
+
+                        # This flag is used to determin how many times the AI has attempted to use this state
+                        self.iteration += 1
+
+                        # The following code was made as an attempt to move the AI around hedges
+                        # The self.iteration is checked and will run if the rabbit has been stuck for 10 turns
+                        # Each statement will check which side of the screen the rabbit is closest to
+                        if self.iteration >= 10 and self.x > WIDTH / 2:
+                            print("There's something in my way!")
+                            self.input_queue.append(DIRECTION_LEFT)
+                            print("LEFT")
+
+                            # Reset the hedge flag
+                            self.iteration = -1
+
+                        if self.iteration >= 10 and self.x < WIDTH / 2:
+                            print("There's something in my way!")
+                            self.input_queue.append(DIRECTION_RIGHT)
+                            print("RIGHT")
+
+                            self.iteration = -1
+
+                        # The following code was used as an attempt to make the AI not get stuck directly in the centre of the screen
+                        # If not used, the rabbit will be stuck in an infinate loop of moving left and right in the centre
+                        if self.iteration >= 10 and self.x == WIDTH / 2 and pickDirection == 1:
+
+                            # Run this code x number of times
+                            for x in range(0, 6):
+                                print("There's something in my way!")
+                                self.input_queue.append(DIRECTION_RIGHT)
+                                print("RIGHT")
+
+                                # Reset the hedge flag
+                                self.iteration = -1
+
+                        if self.iteration >= 10 and self.x == WIDTH / 2 and pickDirection == 2:
+                            for x in range(0, 6):
+                                print("There's something in my way!")
+                                self.input_queue.append(DIRECTION_LEFT)
+                                print("LEFT")
+
+                                
+                                # Reset the hedge flag
+                                self.iteration = -1
+                            
+
+                # Check if row type is of type...
+                if rowType == "Water":
+         
+                    # CHECK UP
+                    if (str(suggested_state_next_row).find("ALIVE") == -1):
+                        print("Danger ahead!")
+
+                    elif waitInt == 1: 
+                        print("Safe to move!")
+                        self.input_queue.append(DIRECTION_UP)
+                        print("UP")
+                       
+
+                if rowType == "Road" or rowType == "Rail":
+
+                    # The following code was made as an attempt to make the AI double-back if
+                    # it was stuck between a car at it's side and a car in front of it
+                    # This code was removed in the end as the AI would use it too often and wouldn't make enough progress
+                    # Uncomment to see in action
+                    # SANDWHICHED BETWEEN 2 CARS (LEFT AND TOP)
+##                    if (str(suggested_state_current_row_Left).find("SPLAT") == -1) and \
+##                    (str(suggested_state_next_row).find("SPLAT") == -1) and \
+##                    (str(suggested_state_previous_row).find("SPLAT") == -1):
+##                        pass
 ##
-##            for row in game.rows:
-##                if current_found == True:
-##                    next_row == row
-##                    print('Next row.y: ' + str(row.y))
-##                    break
-##            if row.y == self.y:
-##                current_row = row # *** Here is where you could also set next_row to do look ahead stuff
-##                current_found = True
-##                print('Current row.y: ' + str(row.y))
+##                    elif waitInt == 1:    
+##                        self.input_queue.append(DIRECTION_DOWN)
+##                        print("DOWN")
+##                        print("I'm surrounded, Better go back!")
+##                        self.iteration = -1
 
-##            test = str(type (game.rows[0]))
+                    # SANDWHICHED BETWEEN 2 CARS (RIGHT AND TOP)
+##                    if (str(suggested_state_current_row_Right).find("SPLAT") == -1) and \
+##                    (str(suggested_state_next_row).find("SPLAT") == -1) and \
+##                    (str(suggested_state_previous_row).find("SPLAT") == -1):
+##                        pass
 ##
-##            if (test.find("Grass") == -1): 
-##                print("NO")
-##                checkType = False
-##		
-##            else: 
-##                print("YES")
-##                checkType = True
-##                if (self.y == allRows[0]):
-##                    self.input_queue.append(DIRECTION_UP)
-##
-##            if (test.find("Road") == -1): 
-##                print("NO")
-##                checkType = False
-##                        
-##            else: 
-##                print("YES")
-##                checkType = True
-##                if (self.y == allRows[0]):
-##                    self.input_queue.append(DIRECTION_UP)
-                    
+##                    elif waitInt == 1:    
+##                        self.input_queue.append(DIRECTION_DOWN)
+##                        print("DOWN")
+##                        print("I'm surrounded, Better go back!")
+##                        self.iteration = -1
+                        
+                    # CHECK LEFT
+                    if (str(suggested_state_current_row_Left).find("SPLAT") == -1) or \
+                       (str(suggested_state_current_row_Left2).find("SPLAT") == -1):
+                        # No conditions needed for this outcome
+                        pass
 
-            #df = type(game.rows[0])
-            #print (str(df) )
-
-##            for row in game.rows:
-####                if current_found == True:
-####                    next_row == row
-####                    print('Next row.y: ' + str(row.y))
-####                    break
-####                if row.y == self.y:
-####                    current_row = row       # *** Here is where you could also set next_row to do look ahead stuff
-####                    current_found = True
-####                    print('Current row.y: ' + str(row.y))
-##                  if row.y
-##                      current_row.check_collision(self.x)
-
-                      
+                    # Move away from oncoming traffic
+                    elif waitInt == 1:    
+                        self.input_queue.append(DIRECTION_RIGHT)
+                        print("RIGHT")
+                        print("Danger to my left!")
+                        
             
+                    # CHECK RIGHT
+                    if (str(suggested_state_current_row_Right).find("SPLAT") == -1) or \
+                       (str(suggested_state_current_row_Right2).find("SPLAT") == -1):
+                        # No conditions needed for this outcome
+                        pass
+
+                    # Move away from oncoming traffic
+                    elif waitInt == 1:
+                        self.input_queue.append(DIRECTION_LEFT)
+                        print("LEFT")
+                        print("Danger to my right!")
+                        
+              
+                    # CHECK UP
+                    if (str(suggested_state_next_row).find("ALIVE") == -1) or \
+                       (str(suggested_state_next_row_side_left).find("ALIVE") == -1) or \
+                       (str(suggested_state_next_row_side_right).find("ALIVE") == -1) or \
+                       (str(suggested_state_next_row_side_right2).find("ALIVE") == -1 or \
+                       (str(suggested_state_next_row_side_left2).find("ALIVE") == -1)):
+                        print("Danger ahead!")
+                        
+                    elif waitInt == 1: 
+                        print("Safe to move!")
+                        self.input_queue.append(DIRECTION_UP)
+                        print("UP")
+                        
+                      
             if current_row:
                 # Row.check receives the player's X coordinate and returns the new state the player should be in
                 # (normally ALIVE, but SPLAT or SPLASH if they've collided with a vehicle or if they've fallen in
@@ -350,56 +403,6 @@ class Bunner(MyActor):
         else:
             # Not alive - timer now counts down prior to game over screen
             self.timer -= 1
-
-# AI STARTS
-##        bunwait = None
-##        waitInt = randint (1, 30)
-##        
-##        if waitInt > 1:
-##            bunwait = True
-##
-##        if waitInt == 1:
-##            bunwait = False
-##        
-##        RandomInt = randint(1, 4)  
-##
-##        if RandomInt == 1 and bunwait == False:       
-##            self.input_queue.append(DIRECTION_UP)
-##            print("UP")
-##            
-##        if RandomInt == 2 and bunwait == False:       
-##            self.input_queue.append(DIRECTION_RIGHT)
-##            print("RIGHT")
-##
-##        #if RandomInt == 3 and bunwait == False:       
-##            #self.input_queue.append(DIRECTION_DOWN)
-##            #print("DOWN")
-##
-##        if RandomInt == 4 and bunwait == False:       
-##            self.input_queue.append(DIRECTION_LEFT)
-##            print("LEFT")
-
-##        if self.y < -10:      
-##            self.input_queue.append(DIRECTION_UP)
-##            print("UP")
-
-        #new_row =  in self.rows
-
-##        child_obj = None  
-##        child_obj = isinstance(child_obj, Car)
-##        positionAhead = self.y - 40
-##   
-##        if self.y >= positionAhead:
-##            self.input_queue.append(DIRECTION_UP)
-##            print("UP")
-            
-##        print("x = ", self.x)
-##        print("y = ", self.y)
-##        print(positionAhead)
-                
-
-
-
         
         # Keep track of the furthest we've got in the level
         self.min_y = min(self.min_y, self.y)
