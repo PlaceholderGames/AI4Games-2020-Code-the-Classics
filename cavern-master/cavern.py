@@ -290,8 +290,8 @@ class Fruit(GravityActor):
 
 class Player(GravityActor):
 
-    global game, player_state
-
+    global game
+    
     def __init__(self):
         # Call constructor of parent class. Initial pos is 0,0 but reset is always called straight afterwards which
         # will set the actual starting position.
@@ -299,7 +299,9 @@ class Player(GravityActor):
 
         self.lives = 2
         self.score = 0
-
+        self.player_state = Player_State.SEARCHFRUIT
+        self.dx = 0
+        
     def reset(self):
         self.pos = (WIDTH / 2, 100)
         self.vel_y = 0
@@ -311,7 +313,8 @@ class Player(GravityActor):
         self.blowing_orb = None
         self.target_fruit = None
         self.game_fruits = []
-        player_state = Player_State.SEARCHFRUIT
+        
+        
 
     def hit_test(self, other):
         # Check for collision between player and bolt - called from Bolt.update. Also check hurt_timer - after being hurt,
@@ -336,25 +339,30 @@ class Player(GravityActor):
     def search_update(self):
         #save the level fruits in a different player array so if 
         #we want to perform some sorting in this array we dont affect the game one
-        self.game_fruits = game.fruits
-        self.target_fruit = self.game_fruits[0]
+        print("Search update")
+        if game.fruits:
+            self.game_fruits = game.fruits
+            self.target_fruit = self.game_fruits[0]
+            print("Fruta encontrada")
 
     def move_update(self):
-        if self.collidepoint(target_fruit.center):           
-            target_fruit = None
+        print("Move update")
+        if self.collidepoint(self.target_fruit.center):           
+            self.target_fruit = None
         else:
-            dx = 0
+            self.dx = 0
             
             if self.target_fruit.x > self.x:
-                dx = 1
+                self.dx = 1
             elif self.target_fruit.x < self.x:
-                dx = -1
+                self.dx = -1
                 
-            if dx != 0:
-                self.direction_x = dx
+            if self.dx != 0:
+                self.direction_x = self.dx
                 # If we haven't just fired an orb, carry out horizontal movement
                 if self.fire_timer < 10:
-                    self.move(dx, 0, 4)
+                    self.move(self.dx, 0, 4)
+                    print("Moviemiento")
         
     def create_bubble_update(self):
         print("Bubble created")
@@ -386,33 +394,33 @@ class Player(GravityActor):
                     self.lives -= 1
                     self.reset()
                     
-        elif player_state == Player_State.SEARCHFRUIT:
+        elif self.player_state == self.player_state.SEARCHFRUIT:
             if self.lives == 0:
-                player_state = Player_State.DIE
+                self.player_state = self.player_state.DIE
             elif self.target_fruit != None:
-                player_state = Player_State.MOVE
+                self.player_state = self.player_state.MOVE
             else:
-                self.search_update(self);
+                self.search_update();
         
-        elif player.state == Player_State.MOVE:
+        elif self.player_state == self.player_state.MOVE:
             if self.lives == 0:
-                player_state = Player_State.DIE
+                self.player_state = self.player_state.DIE
             elif self.target_fruit == None:
-                player_state = Player_State.SEARCHFRUIT;
+                self.player_state = self.player_state.SEARCHFRUIT;
             elif self.fire_rate <= 0 and self.target_fruit != None:    
-                player_state = Player_State.CREATE_BUBBLE;
+                self.player_state = self.player_state.CREATE_BUBBLE;
             else:
-                self.move_update(self);        
+                self.move_update();        
         
-        elif player.state == Player_State.CREATE_BUBBLE:
+        elif self.player_state == self.player_state.CREATE_BUBBLE:
             if self.lives == 0:
-                player_state = Player_State.DIE
+                self.player_state = self.player_state.DIE
             elif self.fire_rate > 0: 
-                player_state = Player_State.MOVE
+                self.player_state = self.player_state.MOVE
             else:
-                self.create_bubble_update(self);
+                self.create_bubble_update();
         
-        elif player.state == Player_State.DIE:
+        elif self.player_state == self.player_state.DIE:
             print("player dead")
            
         self.image = "blank"
@@ -425,7 +433,7 @@ class Player(GravityActor):
                     self.image = "fall" + str((game.timer // 4) % 2)
             elif self.fire_timer > 0:
                 self.image = "blow" + dir_index
-            elif dx == 0:
+            elif self.dx == 0:
                 self.image = "still"
             else:
                 self.image = "run" + dir_index + str((game.timer // 8) % 4)
@@ -598,8 +606,6 @@ class Robot(GravityActor):
 
 
 class Game:
-
-    global player_state
     
     def __init__(self, player=None):
         self.player = player
@@ -834,7 +840,7 @@ class Player_State(Enum):
     
     
 def update():
-    global state, game, player_state
+    global state, game
 
     if state == State.MENU:
         if space_pressed():
@@ -903,7 +909,7 @@ except:
 state = State.MENU
 
 # Set the initial player state
-player_state = Player_State.SEARCHFRUIT
+#player_state = Player_State.SEARCHFRUIT
 
 # Create a new Game object, without a Player object
 game = Game()
