@@ -70,7 +70,7 @@ class PlayerState(Enum):
     SPLAT = 1
     SPLASH = 2
     EAGLE = 3
-    HEDGE = 4
+
 
 #-----------------------------------------------------------------------------------------------------------------
 # Constants representing directions
@@ -127,7 +127,6 @@ class Bunner(MyActor):
         self.stepOnPavement = False
         self.stepOnDirt = False
         self.screenCheck = False
-        self.updateCounter = 1
         self.stepOnLog = True
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
@@ -152,9 +151,9 @@ class Bunner(MyActor):
                 return
     
     def update(self):
-       # print(self.x)      # *** turned this off as it isn't really helping now
+       # print(self.x)
         current_row = None
-        check_row = False   # *** Should be False, not None really, although it doesn't really make a difference
+        check_row = False   
         next_row = None
         
         logCheck = self.MOVE_DISTANCE
@@ -179,27 +178,24 @@ class Bunner(MyActor):
             #print(next_row.index)
             if next_state == PlayerState.ALIVE:
                 
-                if rowCheck == "Grass": # *** should this be next_row, as row is set in a for loop and is unstable
+                if rowCheck == "Grass":
                     print("grass")
                     self.stepOnLog = True
-                    # print(self.x) # *** turned this off for now
-                    #if self.updateCounter <= 0:
+                    
                     if next_row.collide(self.x, 5):
                         for hedge in next_row.children:
-                            #print('Self Y: ' + str(self.x) + ' Hedge Y: ' + str(hedge.x))
                             
+                            #print('Self Y: ' + str(self.x) + ' Hedge Y: ' + str(hedge.x))                           
                             if self.screenCheck == False:
                                 self.input_queue.append(0)
                                 self.input_queue.append(1)
                                 #print ("test 1")
-
                                 if self.x >= 410:
                                     #print ("test 2")
                                     self.screenCheck = True
                                     self.input_queue.append(0)
                                     self.input_queue.append(3)
                                     break
-                                    
                                 else:
                                     break
 
@@ -207,14 +203,10 @@ class Bunner(MyActor):
                                 self.input_queue.append(0)
                                 self.input_queue.append(3)
                                 #print ("test 3")
-                                    
                                 if self.x <= 60:
                                     #print ("test 4")
-                                    #self.input_queue.clear()
-                                    self.cc = False
                                     self.screenCheck = False
-                                    break
-                                    
+                                    break    
                                 else:
                                     break
                     else:
