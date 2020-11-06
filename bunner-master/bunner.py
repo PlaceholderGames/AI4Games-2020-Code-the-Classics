@@ -249,6 +249,7 @@ class Bunner(MyActor):
 
             # Are we on the ground, and are there inputs to process?
             if self.timer == 0 and len(self.input_queue) > 0:
+                print ('Length of string: ' + str (len(self.input_queue)))
                 #inputCheck = False
                 #if len(self.input_queue) > 10:
                     #self.input_queue.pop(0)
@@ -293,8 +294,8 @@ class Bunner(MyActor):
                     if rowCheck == "Dirt":
                         if self.x < 230 or self.x > 250:
                             if self.x < 230:
-                                self.input_queue.append(1)
-                            if self.x > 250:
+                                self.input_queue.append(1)      
+                            elif self.x > 250:
                                 self.input_queue.append(3)
                         elif self.x >= 230 and self.x <= 250:
                             self.input_queue.append(0)
