@@ -120,10 +120,72 @@ class Bunner(MyActor):
 
     def update(self):
         # Check each control direction
-        for direction in range(4):
-            if key_just_pressed(direction_keys[direction]):
-                self.input_queue.append(direction)
 
+        activeY = None
+        lastY = None
+        
+        active_found = False
+        active_row = None
+        
+        next_row = None
+        jumpPath = 0
+        
+
+        for row in game.rows:
+             if active_found:
+                  next_row = row
+                  break
+                
+             if row.y==self.y:
+                  active_row = row
+                  active_found = True
+         #code to check if bunner is dead and if so advance to next state
+        if next_row:
+            NextState = next_row.check_collision(self.x)
+            PlayerNextState = str(NextState)
+            
+            if str(NextState) == "SPLAT":
+                print(NextState)
+                
+              #tells the user that bunner is alive however this prints multiple times           
+            if(PlayerNextState.find("ALIVE") == -1):
+                print("Bunny alive")
+
+            else:
+                rowType = type(next_row).__name__
+
+                self.input_queue.append(0)
+                lastY = activeY
+                activeY = self.y
+                if rowType == "Grass":
+                    for child in next_row.children:
+                        if next_row.collide(self.x, 0):
+                            
+                            for i in range(16):
+                                #print(currentY)
+                                self.input_queue.append(1)
+                                activeY = self.y
+                                self.input_queue.append(0)
+                                #print(currentY)
+                                if self.y > activeY:
+                                    break
+                                
+                            #self.input_queue.append(0)
+                            if self.y == self.y and type(child).__name__ == "Hedge":
+                                
+                                for i in range(16):
+                                    # print(currentY)
+                                    self.input_queue.append(3)
+                                    currentY = self.y
+                                    
+                                    self.input_queue.append(0)
+                                    #print(currentlY)
+                                    if self.y > activeY:
+                                        break
+                                          # self.input_queue.append(0)         
+                       
+                       
+        
         if self.state == PlayerState.ALIVE:
             # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
             # the ground. If it's above zero, they're currently jumping to a new location.
