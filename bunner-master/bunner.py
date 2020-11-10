@@ -638,6 +638,7 @@ class Rail(Row):
 class Game:
     def __init__(self, bunner=None):
         self.bunner = bunner
+        self.AI = AI
         self.looped_sounds = {}
 
         try:
@@ -692,6 +693,8 @@ class Game:
                 volume = sum([16.0 / max(16.0, abs(r.y - self.bunner.y)) for r in self.rows if isinstance(r, row_class)]) - 0.2
                 volume = min(0.4, volume)
                 self.loop_sound(name, count, volume)
+        if self.bunner:
+            AI.work_process(state,bunner)
 
         return self
 
@@ -821,6 +824,29 @@ class State(Enum):
     MENU = 1
     PLAY = 2
     GAME_OVER = 3
+
+
+
+
+
+    
+# AI class
+
+
+class AI:
+    
+
+
+
+    def input_direction(direction,Bunner):
+        Bunner.input_queue.append(direction)
+
+    def work_process(state_of_game,Bunner):
+        if state_of_game == State.PLAY and game.bunner.timer == 0:
+            input_direction(0,Bunner)
+
+
+    
 
 def update():
     global state, game, high_score

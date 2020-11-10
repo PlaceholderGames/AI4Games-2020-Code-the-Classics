@@ -1,0 +1,7 @@
+hedge
+water
+road
+cars
+rails
+train
+log
