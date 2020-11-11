@@ -640,6 +640,7 @@ class Rail(Row):
 class Game:
     def __init__(self, bunner=None):
         self.bunner = bunner
+        #AI setup in Game class
         self.AI = AI
         self.looped_sounds = {}
 
@@ -696,8 +697,10 @@ class Game:
                 volume = min(0.4, volume)
                 self.loop_sound(name, count, volume)
 
+
+        #this part is responsible for activating AI work process function
         if self.bunner:
-            self.AI.work_process(self = self.AI, state_of_game = state, Bunner = self.bunner)
+            self.AI.work_process(self = self.AI, state_of_game = state, Bunner = self.bunner, game = self)
 
 
         return self
@@ -834,28 +837,58 @@ class State(Enum):
 
 
     
-# AI class
+# Class I created specifically to contain AI code
 
-
+####################################################################################################
 class AI:
-    a=0
-    def random_left_right(self,Bunner):
-        n = randint(0, 1)
-        if n == 0:
-            return self.input_direction(self,direction = 1,Bunner = Bunner)
-        else:
-            return self.input_direction(self,direction = 3,Bunner = Bunner)
-
+    #function that uses function of input queuing to simulate player movement input
     def input_direction(self, direction, Bunner):
         Bunner.input_queue.append(direction)
 
-    def work_process(self, state_of_game, Bunner):
-        if state_of_game == State.PLAY and Bunner.timer == 0 and self.a == 0:
-            self.a = 1
-            self.random_left_right(self,Bunner = Bunner)
+    #function thats used in update part of game to initialize code if player is alive, character is on groung and to avoid duplicate input, it checks whether input queue is empty
+    def work_process(self, state_of_game, Bunner, game):
+        if state_of_game == State.PLAY and Bunner.timer == 0 and len(Bunner.input_queue) == 0 :
+          self.check_row(self,Bunner = Bunner, game = game)
+            #self.check_hedge(self,Bunner = Bunner,game = game)
 
-    
-
+    #Function that is responsible for movement of the bunny. It is made of Python version of switch function to response to different types of environment
+    def check_row(self,Bunner,game):
+        #function that downloads list of rows currently in the level and selects from them the one that is next row to player then checks which type of row it is
+        for row in game.rows:
+            if row.y == Bunner.y + Bunner.MOVE_DISTANCE *  DY[0]:
+                #for water type of row, it checks whether there is log/object in front of bunny and then jumps on it, together with some offset to not risk jumping in water
+                if type(row).__name__ == "Water":
+                    if row.collide(Bunner.x+Bunner.MOVE_DISTANCE, -16):
+                        self.input_direction(self, 0, Bunner = Bunner)
+                else:
+                    #For road type its opposite to water. It tells bunny to avoid cars on road
+                    if type(row).__name__== "Road":
+                        if not row.collide(Bunner.x+Bunner.MOVE_DISTANCE, 14):
+                            self.input_direction(self, 0, Bunner = Bunner)
+                    else:
+                        #this part is responsible for handling hedges, it allows for checking which part of next row is not blocking way and moves character to that part
+                        if not row.allow_movement(Bunner.x + Bunner.MOVE_DISTANCE * DX[0]):
+                            marker = 0
+                            for a in range(1,480):
+                                if row.allow_movement(a):
+                                    marker = a
+                            if Bunner.x-marker < 4:
+                                self.input_direction(self, 1, Bunner = Bunner)
+                            if Bunner.x-marker >-4:
+                                self.input_direction(self, 3, Bunner = Bunner)
+                        else:
+                            #2 last parts: first is rails. Since train is fast we check for whole row, not only in front and move only if row is empty. The last part is default behaviour which tells character to move forward
+                            if type(row).__name__== "Rail":
+                                if not row.collide(480, 0):
+                                    self.input_direction(self, 0, Bunner = Bunner)  
+                            else:
+                                self.input_direction(self, 0, Bunner = Bunner)
+                #else:
+                    
+                    #self.input_direction(self, 0, Bunner = Bunner)
+               
+                                 
+#############################################################################################                    
 def update():
     global state, game, high_score
 
