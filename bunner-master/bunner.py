@@ -1,8 +1,10 @@
 # If the window is too tall to fit on the screen, check your operating system display settings and reduce display
 # scaling if it is enabled.
-import pgzero, pgzrun, pygame, sys
+import pgzero, pgzrun, pygame, sys 
 from random import *
 from enum import Enum
+
+seed(1)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -836,15 +838,21 @@ class State(Enum):
 
 
 class AI:
-    
+    a=0
+    def random_left_right(self,Bunner):
+        n = randint(0, 1)
+        if n == 0:
+            return self.input_direction(self,direction = 1,Bunner = Bunner)
+        else:
+            return self.input_direction(self,direction = 3,Bunner = Bunner)
 
     def input_direction(self, direction, Bunner):
         Bunner.input_queue.append(direction)
 
     def work_process(self, state_of_game, Bunner):
-        if state_of_game == State.PLAY and Bunner.timer == 0:
-            self.input_direction(self,direction = 0,Bunner = Bunner)
-
+        if state_of_game == State.PLAY and Bunner.timer == 0 and self.a == 0:
+            self.a = 1
+            self.random_left_right(self,Bunner = Bunner)
 
     
 
