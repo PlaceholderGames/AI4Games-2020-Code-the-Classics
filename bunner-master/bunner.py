@@ -693,8 +693,10 @@ class Game:
                 volume = sum([16.0 / max(16.0, abs(r.y - self.bunner.y)) for r in self.rows if isinstance(r, row_class)]) - 0.2
                 volume = min(0.4, volume)
                 self.loop_sound(name, count, volume)
+
         if self.bunner:
-            AI.work_process(state,bunner)
+            self.AI.work_process(self = self.AI, state_of_game = state, Bunner = self.bunner)
+
 
         return self
 
@@ -836,14 +838,12 @@ class State(Enum):
 class AI:
     
 
-
-
-    def input_direction(direction,Bunner):
+    def input_direction(self, direction, Bunner):
         Bunner.input_queue.append(direction)
 
-    def work_process(state_of_game,Bunner):
-        if state_of_game == State.PLAY and game.bunner.timer == 0:
-            input_direction(0,Bunner)
+    def work_process(self, state_of_game, Bunner):
+        if state_of_game == State.PLAY and Bunner.timer == 0:
+            self.input_direction(self,direction = 0,Bunner = Bunner)
 
 
     
