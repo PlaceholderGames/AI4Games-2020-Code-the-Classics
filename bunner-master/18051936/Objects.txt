@@ -1,0 +1,14 @@
+hedge
+water
+road
+cars
+rails 
+train
+log
+
+
+WIDTH = 480 
+HEIGHT = 800
+TITLE = "Infinite Bunner"
+
+ROW_HEIGHT = 40
